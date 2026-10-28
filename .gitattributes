@@ -1,0 +1,14 @@
+* text=auto
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.bat text eol=crlf
+*.exe binary
+*.dll binary
+# 随附引擎按原始字节保存，避免 Git 改写第三方文件的换行。
+ffmpeg/** -text -diff
+exiftool/** -text -diff

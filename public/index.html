@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>视频压缩器</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>视频压缩器</h1>
+    <p class="sub">x265 重编码 · 压缩后写回原拍摄时间 · 原片保留</p>
+  </div>
+  <div class="engines" id="engines">正在检测引擎…</div>
+</header>
+
+<main>
+  <section class="panel files">
+    <div class="panel-head">
+      <h2>待压缩文件 <span class="count-badge" id="fileCount">0</span></h2>
+      <div class="head-actions">
+        <button class="ghost" id="pickFiles">选择文件</button>
+        <button class="ghost" id="clearAll">清空</button>
+      </div>
+    </div>
+
+    <div class="dropzone" id="drop" role="button" tabindex="0" aria-label="添加视频文件">
+      <div class="dz-icon"></div>
+      <p class="dz-main">把视频拖进来</p>
+      <p class="dz-sub">支持粘贴路径、拖入文件夹、或点「选择文件」</p>
+    </div>
+
+    <div class="path-row">
+      <input id="pathInput" type="text" placeholder="粘贴视频或文件夹路径，回车添加">
+      <button class="ghost" id="pickDir">选文件夹</button>
+    </div>
+
+    <details class="lookup-settings">
+      <summary>拖拽查找目录</summary>
+      <div class="workdir-row">
+        <input id="workdir" type="text" spellcheck="false" aria-label="拖拽查找目录">
+        <span class="hint">浏览器只能读取拖入文件的名称，会在此目录查找原件。</span>
+      </div>
+    </details>
+
+    <div class="list-caption"><span id="listSummary">尚未添加文件</span><span>点击文件查看预估</span></div>
+    <ul class="filelist" id="filelist" aria-label="视频文件，点击切换当前预估"></ul>
+    <div class="empty-state" id="emptyState">添加视频后，在这里切换查看每个文件的预估。</div>
+  </section>
+
+  <div class="right-column">
+  <section class="panel params">
+    <div class="current-file" aria-live="polite">
+      <div class="current-file-label"><span>正在查看</span><span id="selectedPosition">—</span></div>
+      <h2 id="selectedFileName">选择一个视频</h2>
+      <p id="selectedFileMeta">点击左侧文件，即可查看对应预估。</p>
+    </div>
+
+    <div class="crf-block">
+      <div class="crf-title">
+        <span>CRF 画质档位 <span class="scope-label">仅当前视频</span></span>
+        <div class="crf-actions"><button type="button" class="apply-all" id="applyCrfAll" aria-label="将当前 CRF 应用到全部视频" title="把当前 CRF 应用到已有的全部文件，之后仍可逐个调整">应用到全部</button><span class="crf-value" id="crfValue">25</span></div>
+      </div>
+      <input type="range" id="crf" min="16" max="30" step="1" value="25">
+      <div class="crf-scale"><span>更高画质</span><span>更小体积</span></div>
+      <div class="preset-row">
+        <button class="chip" data-crf="20">高画质</button>
+        <button class="chip" data-crf="23">较高质量</button>
+        <button class="chip" data-crf="25">平衡</button>
+        <button class="chip" data-crf="27">小体积</button>
+      </div>
+      <p class="crf-note" id="crfNote"></p>
+      <details class="crf-guide" id="crfGuide">
+        <summary><span id="crfGuideLabel">画质参考：画质与体积平衡（24–26）</span><span class="guide-toggle">档位说明</span></summary>
+        <div class="crf-guide-content">
+          <p>CRF 越低通常保留越多细节，体积也越大。以下是 <strong>x265 medium 的经验选档参考</strong>，并非当前视频的实测画质。</p>
+          <table class="guide-table" aria-label="CRF 经验档位说明">
+            <thead><tr><th>CRF</th><th>画质取向</th><th>适用与取舍</th></tr></thead>
+            <tbody id="crfGuideBody"></tbody>
+          </table>
+          <p class="guide-caution">“接近视觉无损”指正常观看时以较难察觉差别为目标，并非数学无损；实际观感受素材、分辨率、屏幕和观看距离影响。没有固定 CRF 能保证压到原大小的 50%–60%。</p>
+          <a href="https://x265.readthedocs.io/en/master/cli.html#cmdoption-crf" target="_blank" rel="noopener">了解 CRF 参数原理 ↗</a>
+        </div>
+      </details>
+    </div>
+
+    <div class="metrics" id="metrics">
+      <div class="metric"><span class="m-label">粗估体积</span><span class="m-value" id="mSize">—</span><span class="m-range" id="mRange"></span></div>
+      <div class="metric"><span class="m-label">相对原片</span><span class="m-value" id="mRatio">—</span></div>
+      <div class="metric"><span class="m-label">接近 55% 的参考档</span><span class="m-value" id="mRecommended">—</span></div>
+    </div>
+
+    <div class="faststart-option">
+      <label class="check" title="仅设置当前视频；默认关闭。开启后优化 MP4 的网络起播。">
+        <input type="checkbox" id="faststart">
+        <span>faststart <span class="faststart-help">优化网络播放</span></span>
+      </label>
+      <button type="button" class="apply-all" id="applyFaststartAll" aria-label="将当前 faststart 开关应用到全部视频" title="把当前 faststart 开关应用到已有的全部文件，CRF 不受影响">应用到全部</button>
+    </div>
+
+    <details class="output-settings">
+      <summary>通用输出设置 <span>后缀与拍摄时间 · 全部文件</span></summary>
+      <div class="output-settings-body">
+    <div class="opt">
+      <label for="suffix">输出后缀</label>
+      <input id="suffix" type="text" value="_compressed" spellcheck="false">
+    </div>
+
+    <div class="date-note">
+      压缩完成后会把<strong>原片的拍摄时间</strong>原样写回，包括时区；保留原片色彩信息，原片不动。
+    </div>
+      </div>
+    </details>
+  </section>
+
+<section class="panel table-panel">
+  <div class="panel-head">
+    <h2>CRF 档位对照</h2>
+    <span class="table-hint">滚动查看更多 · 点击选档</span>
+  </div>
+  <p class="table-note" id="tableNote">添加视频后显示各档大小</p>
+  <div class="table-wrap">
+    <table id="crfTable">
+      <thead>
+        <tr><th>CRF</th><th title="经验分档，实际观感依素材而变">画质参考</th><th>粗估体积</th><th>参考范围</th><th>相对原片</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="table-foot">
+    画质标签为经验参考，大小为快速粗估；实际效果以输出为准。
+  </p>
+</section>
+  </div>
+</main>
+
+<footer>
+  <div class="action">
+    <button id="start" disabled>开始压缩</button>
+    <button class="ghost" id="cancel" hidden>取消</button>
+  </div>
+  <span class="batch-summary" id="batchSummary">添加视频后开始压缩</span>
+  <div class="progress-area" id="progressArea" hidden>
+    <div class="progress-top">
+      <span id="progressLabel">准备中…</span>
+      <span id="progressMeta"></span>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+  </div>
+  <p class="foot-hint">本地处理 · 不上传 · 原始文件只读</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

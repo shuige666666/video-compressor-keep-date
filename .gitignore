@@ -1,0 +1,29 @@
+# 本地依赖、环境配置与系统文件
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 运行日志、临时文件及 ExifTool 备份
+*.log
+*.tmp
+*.bak
+*_original
+
+# 原视频、压缩结果与本地实验目录
+*.mp4
+*.mov
+*.m4v
+*.mkv
+*.avi
+*.webm
+*.3gp
+*.wmv
+*.flv
+*.mts
+/outputs/
+/work/
+/backups/
