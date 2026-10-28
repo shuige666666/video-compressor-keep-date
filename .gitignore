@@ -1,5 +1,6 @@
 # 本地依赖、环境配置与系统文件
 node_modules/
+.idea/
 .env
 .env.*
 !.env.example
