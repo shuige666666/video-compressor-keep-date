@@ -663,6 +663,10 @@ footer {
 .result-line.err { color: var(--bad); }
 .result-line:empty { display: none; }
 
+.import-status { flex-shrink: 0; padding: 8px 10px; margin-top: 8px; border-radius: 8px; background: var(--accent-soft, #edf3ff); font-size: 12px; overflow-wrap: anywhere; max-height: 110px; overflow: auto; white-space: pre-line; }
+.import-status[hidden] { display: none; }
+.import-status.error { color: var(--bad); background: #fff1f0; }
+
 /* 窄窗口采用有限高度的列表与表格，页面长度仍与文件数量无关。 */
 @media (max-width: 880px) {
   body { height: auto; min-height: 100dvh; padding: 16px; overflow: auto; }

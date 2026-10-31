@@ -12,6 +12,7 @@ import os from 'node:os';
 import { execFile, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { buildTable, createQuickEstimator } from './quick-estimate.mjs';
+import { verifyVideoTimeline } from './video-timeline.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -41,6 +42,19 @@ const ET_CANDIDATES = [
 ].filter(Boolean);
 
 let FF = null, FF_VER = '', ET = null, ET_VER = '';
+const toolErrors = {};
+
+/** 区分文件缺失与进程被系统拒绝，避免把权限故障误报成未安装。 */
+function processError(error) {
+  if (error.code === 'EPERM' || error.code === 'EACCES') {
+    return '后台启动外部程序被系统拒绝（' + error.code + '）。请关闭当前服务后，双击工具目录中的「启动.bat」重新启动。';
+  }
+  return error.message;
+}
+
+function requireTools() {
+  if (!FF || !ET) throw new Error((!FF && toolErrors.ffmpeg) || (!ET && toolErrors.exiftool) || '缺少 ffmpeg 或 exiftool，请检查工具目录后重新启动服务。');
+}
 
 function versionOf(exe) {
   return new Promise((resolve, reject) => {
@@ -68,14 +82,18 @@ async function detectTools() {
       const first = (out.split('\n')[0] || '').replace('ffmpeg version ', '');
       FF_VER = first.split(' Copyright')[0].trim();
       break;
-    } catch { /* next */ }
+    } catch (e) {
+      if (fs.existsSync(c)) toolErrors.ffmpeg = processError(e);
+    }
   }
   for (const c of ET_CANDIDATES) {
     try {
       ET_VER = await etVersionOf(c);
       ET = c;
       break;
-    } catch { /* next */ }
+    } catch (e) {
+      if (fs.existsSync(c)) toolErrors.exiftool = processError(e);
+    }
   }
 }
 
@@ -318,6 +336,9 @@ function buildFfmpegArgs(info, src, dst, crf, faststart) {
   args.push('-map', '0:v:0');
   if (info.audio) args.push('-map', '0:a:0');
 
+  // 手机视频可能是可变帧率；逐帧沿用时间戳及输入时间基，避免自动同步丢帧或补帧。
+  args.push('-fps_mode:v:0', 'passthrough', '-enc_time_base:v:0', '-1');
+
   args.push('-c:v', 'libx265', '-preset', 'medium', '-crf', String(crf));
 
   if (info.is10bit || info.isHDR) {
@@ -326,7 +347,7 @@ function buildFfmpegArgs(info, src, dst, crf, faststart) {
     args.push('-pix_fmt', 'yuv420p', '-profile:v', 'main');
   }
 
-  // 色彩标记一律从原片继承——这一步就是手机相册没做对的地方
+  // 色彩标记从原片继承，与当前像素数据保持一致。
   args.push('-color_primaries', info.prim, '-color_trc', info.trc, '-colorspace', info.matrix);
 
   const fps = info.fps || 30;
@@ -474,6 +495,18 @@ function runCompress(jobId) {
         item.dateResult = { ok: false, error: e.message };
       }
 
+      // 原片 MP4 样本表核对开销很小，帧数或时间轴异常时保留输出供检查并明确报错。
+      try {
+        item.frameCheck = await verifyVideoTimeline(item.path, dst);
+        if (!item.frameCheck.ok) throw new Error(item.frameCheck.error);
+        item.outBytes = (await fsp.stat(dst)).size;
+      } catch (e) {
+        item.status = 'error';
+        item.error = '帧序列核对失败：' + e.message;
+        job.index++;
+        return setImmediate(step);
+      }
+
       item.status = 'done';
       job.index++;
       setImmediate(step);
@@ -518,17 +551,17 @@ async function expandPaths(inputs) {
   return { files: [...new Set(out)], problems };
 }
 
-async function locateByName(workdir, name, depth = 3) {
-  const found = [];
-  const target = name.toLowerCase();
+/** 同批文件只遍历一次目录，并保留重名检测。 */
+async function locateByNames(workdir, names, depth = 3) {
+  const found = new Map(names.map((name) => [name.toLowerCase(), []]));
   async function walk(dir, d) {
-    if (d > depth || found.length >= 2) return;
+    if (d > depth) return;
     let ents;
     try { ents = await fsp.readdir(dir, { withFileTypes: true }); } catch { return; }
     for (const e of ents) {
-      if (found.length >= 2) return;
       const full = path.join(dir, e.name);
-      if (e.isFile() && e.name.toLowerCase() === target) found.push(full);
+      const hits = found.get(e.name.toLowerCase());
+      if (e.isFile() && hits && hits.length < 2) hits.push(full);
       else if (e.isDirectory() && !e.name.startsWith('.') && d < depth) await walk(full, d + 1);
     }
   }
@@ -589,7 +622,8 @@ function nativePick(mode) {
     execFile('powershell.exe', ['-NoProfile', '-STA', '-Command', ps],
       { windowsHide: true, timeout: 180000, encoding: 'utf8' },
       (err, stdout) => {
-        if (err) return reject(new Error('选择框被关闭或无法打开（可以直接粘贴路径）'));
+        if (err) return reject(new Error(['EPERM', 'EACCES'].includes(err.code)
+          ? processError(err) : '选择框被关闭或无法打开（可以直接粘贴路径）'));
         resolve(stdout.split(/\r?\n/).map((s) => s.trim()).filter(Boolean));
       });
   });
@@ -616,6 +650,7 @@ function publicJob(job) {
       status: it.status,
       error: it.error || '',
       dateResult: it.dateResult || null,
+      frameCheck: it.frameCheck || null,
       oldDate: it.info ? it.info.date : '',
     })),
   };
@@ -634,11 +669,13 @@ const server = http.createServer(async (req, res) => {
         ffmpeg: FF, ffmpegVersion: FF_VER,
         exiftool: ET, exiftoolVersion: ET_VER,
         perFileSettings: true,
+        toolError: (!FF && toolErrors.ffmpeg) || (!ET && toolErrors.exiftool) || '',
         runningJobs: [...jobs.values()].filter((job) => job.status === 'running').length,
       });
     }
 
     if (url.pathname === '/api/scan' && req.method === 'POST') {
+      requireTools();
       const body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
       const inputs = Array.isArray(body.paths) ? body.paths : [body.paths];
       const { files, problems } = await expandPaths(inputs);
@@ -659,10 +696,10 @@ const server = http.createServer(async (req, res) => {
       const body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
       const dir = body.workdir || '';
       const names = Array.isArray(body.names) ? body.names : [];
+      const found = dir ? await locateByNames(dir, names) : new Map();
       const result = [];
       for (const name of names) {
-        let hit = [];
-        if (dir) { try { hit = await locateByName(dir, name); } catch { hit = []; } }
+        const hit = found.get(name.toLowerCase()) || [];
         result.push({ name, path: hit.length === 1 ? hit[0] : null, ambiguous: hit.length > 1 });
       }
       return json(res, 200, { ok: true, result });
@@ -678,6 +715,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (url.pathname === '/api/compress' && req.method === 'POST') {
+      requireTools();
       const body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
       // 新界面逐文件提交，旧界面仍可用 paths 与统一参数发起任务。
       const entries = Array.isArray(body.items) ? body.items
@@ -734,13 +772,13 @@ const server = http.createServer(async (req, res) => {
         const paths = await nativePick(body.mode === 'dir' ? 'dir' : 'file');
         return json(res, 200, { ok: true, paths });
       } catch (e) {
-        return json(res, 200, { ok: false, error: e.message, paths: [] });
+        return json(res, 200, { ok: false, error: processError(e), paths: [] });
       }
     }
 
     json(res, 404, { error: 'not found' });
   } catch (e) {
-    json(res, 500, { ok: false, error: e.message });
+    json(res, 500, { ok: false, error: processError(e) });
   }
 });
 

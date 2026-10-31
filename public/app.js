@@ -21,6 +21,9 @@ const state = {
   jobId: null,
   timer: null,
   busy: false,
+  importing: false,
+  toolsReady: true,
+  toolError: '',
   selectedPath: '',
 };
 
@@ -61,7 +64,9 @@ function estimateStatus(info) {
   if (info.estimateState === 'pending') return '参考值 · 等待快速分析';
   const model = info.sizeModel;
   if (model && model.kind === 'sample') {
-    return model.cached ? '快速粗估 · 已缓存' : `快速粗估 · ${(model.elapsedMs / 1000).toFixed(1)} 秒`;
+    const count = model.anchors?.length || 2;
+    const warning = model.sampleWindows < 3 ? ' · 部分样本' : '';
+    return `${count} 档局部实测粗估 · ${model.cached ? '已缓存' : (model.elapsedMs / 1000).toFixed(1) + ' 秒'}${warning}`;
   }
   return '参数粗估';
 }
@@ -242,7 +247,7 @@ function updateMetrics() {
 
   $$('#crfTable tr').forEach((tr) => tr.classList.toggle('active', Number(tr.dataset.crf) === crf));
   $$('.chip').forEach((c) => c.classList.toggle('active', Number(c.dataset.crf) === crf));
-  $('#start').disabled = state.busy || !state.items.length;
+  $('#start').disabled = state.busy || state.importing || !state.toolsReady || !state.items.length;
   updateEstimateLines();
   revealCrfRow();
 }
@@ -250,39 +255,73 @@ function updateMetrics() {
 /* ---------- 数据加载 ---------- */
 
 async function api(url, opts) {
-  const r = await fetch(url, opts);
-  const j = await r.json().catch(() => ({ ok: false, error: '返回不是 JSON' }));
-  return j;
+  try {
+    const r = await fetch(url, opts);
+    return await r.json().catch(() => ({ ok: false, error: '服务返回异常，请重新启动工具。' }));
+  } catch {
+    return { ok: false, error: '无法连接本地服务，请双击工具目录中的「启动.bat」重新启动后刷新网页。' };
+  }
+}
+
+/** 在页面内持续显示查找、读取进度及错误，避免批量导入像是没有响应。 */
+function importStatus(message, error = false) {
+  const el = $('#importStatus');
+  el.hidden = !message;
+  el.textContent = message;
+  el.classList.toggle('error', error);
+}
+
+/** 串行执行一次导入操作，期间保留文件查看与参数调整。 */
+async function runImport(action) {
+  if (state.busy || state.importing) return;
+  state.importing = true;
+  $('#drop').setAttribute('aria-busy', 'true');
+  $$('#pickFiles, #pickDir, #clearAll, #pathInput, #workdir, #start').forEach((el) => { el.disabled = true; });
+  try {
+    if (!state.toolsReady) throw new Error(state.toolError);
+    await action();
+  } catch (error) {
+    importStatus(error.message || '导入失败，请重试。', true);
+  } finally {
+    state.importing = false;
+    $('#drop').setAttribute('aria-busy', 'false');
+    $$('#pickFiles, #pickDir, #clearAll, #pathInput, #workdir').forEach((el) => { el.disabled = state.busy; });
+    $('#start').disabled = state.busy || !state.toolsReady || !state.items.length;
+  }
 }
 
 async function scanPaths(paths) {
   const arr = (Array.isArray(paths) ? paths : [paths]).filter(Boolean);
   if (!arr.length) return;
-  const j = await api('/api/scan', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ paths: arr }),
-  });
-  if (!j.ok) { alert(j.error || '读取失败'); return; }
-
   const added = [];
-  for (const it of j.items) {
-    if (state.items.some((x) => x.path === it.path)) continue;
-    // 新添加的视频独立使用默认值，批量应用仅作用于操作时已有的文件。
-    it.crf = DEFAULT_CRF;
-    it.faststart = false;
-    it.estimateState = 'pending';
-    state.items.push(it);
-    added.push(it);
+  const problems = [];
+  // 每读完一个路径就更新列表；目录路径由后台展开。
+  for (let index = 0; index < arr.length; index++) {
+    importStatus(`正在读取 ${index + 1}/${arr.length}：${arr[index]}`);
+    const j = await api('/api/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paths: [arr[index]] }),
+    });
+    if (!j.ok) throw new Error(j.error || '读取失败');
+
+    for (const it of j.items) {
+      if (state.items.some((x) => x.path === it.path)) continue;
+      // 新添加的视频独立使用默认值，批量应用仅作用于操作时已有的文件。
+      it.crf = DEFAULT_CRF;
+      it.faststart = false;
+      it.estimateState = 'pending';
+      state.items.push(it);
+      added.push(it);
+    }
+    if (j.problems && j.problems.length) {
+      problems.push(...j.problems);
+    }
+    renderList();
+    renderTable();
+    updateMetrics();
   }
-  if (j.problems && j.problems.length) {
-    console.warn(j.problems);
-    const missing = j.problems.filter((p) => p.includes('路径不存在'));
-    if (missing.length) alert(missing.join('\n'));
-  }
-  renderList();
-  renderTable();
-  updateMetrics();
+  importStatus(`已添加 ${added.length} 个视频${problems.length ? '\n' + problems.join('\n') : ''}`, problems.length > 0);
   scheduleEstimates(added);
 }
 
@@ -326,8 +365,7 @@ async function handleDrop(files) {
 
   const workdir = $('#workdir').value.trim();
   if (!workdir) {
-    alert('请先填写「拖拽查找目录」，或者直接把完整路径粘贴到上面的输入框。');
-    return;
+    throw new Error('请先填写「拖拽查找目录」，或者直接把完整路径粘贴到上面的输入框。');
   }
 
   const j = await api('/api/resolve', {
@@ -335,14 +373,14 @@ async function handleDrop(files) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ workdir, names }),
   });
-  if (!j.ok) { alert(j.error || '查找失败'); return; }
+  if (!j.ok) throw new Error(j.error || '查找失败');
 
   const hits = j.result.filter((r) => r.path).map((r) => r.path);
   const miss = j.result.filter((r) => !r.path).map((r) => r.name);
 
   if (hits.length) await scanPaths(hits);
   if (miss.length) {
-    alert(`这些文件在「${workdir}」里没找到，请把完整路径粘贴到输入框：\n\n${miss.join('\n')}`);
+    importStatus(`已找到 ${hits.length} 个。以下文件在「${workdir}」中未找到或存在重名，请缩小查找目录或粘贴完整路径：\n${miss.join('\n')}`, true);
   }
 }
 
@@ -350,7 +388,7 @@ async function handleDrop(files) {
 
 function setBusy(b) {
   state.busy = b;
-  $('#start').disabled = b || !state.items.length;
+  $('#start').disabled = b || state.importing || !state.toolsReady || !state.items.length;
   $('#cancel').hidden = !b;
   $('#progressArea').hidden = !b;
   $$('.f-remove').forEach((el) => { el.disabled = b; });
@@ -359,6 +397,7 @@ function setBusy(b) {
 }
 
 async function startCompress() {
+  if (state.importing || !state.toolsReady) return;
   if (!state.items.length || state.busy) return;
 
   const items = state.items.filter((item) => item && item.path)
@@ -411,8 +450,10 @@ async function poll() {
       const saved = it.size ? Math.round((1 - it.outBytes / it.size) * 100) : 0;
       const d = it.dateResult;
       const dateTxt = d && d.ok ? `时间已写回 ${d.stamp}` : `时间未写回（${d ? d.error : '未知'}）`;
+      const frames = it.frameCheck;
+      const frameTxt = frames?.checked ? `帧数 ${frames.outputFrames}/${frames.sourceFrames}，时间轴已核对` : '未自动核对帧序列';
       el.className = 'result-line ' + (d && d.ok ? 'ok' : 'err');
-      el.textContent = `${fmtBytes(it.size)} → ${fmtBytes(it.outBytes)}（省 ${saved}%）· ${dateTxt}`;
+      el.textContent = `${fmtBytes(it.size)} → ${fmtBytes(it.outBytes)}（省 ${saved}%）· ${dateTxt} · ${frameTxt}`;
     } else if (it.status === 'error') {
       el.className = 'result-line err';
       el.textContent = '失败：' + it.error;
@@ -452,12 +493,17 @@ async function init() {
     const ff = cfg.ffmpeg ? `<b>ffmpeg</b> ${esc(cfg.ffmpegVersion)}` : '<span class="miss">ffmpeg 未找到</span>';
     const et = cfg.exiftool ? `<b>exiftool</b> ${esc(cfg.exiftoolVersion)}` : '<span class="miss">exiftool 未找到</span>';
     $('#engines').innerHTML = `${ff}<br>${et}`;
-    if (!cfg.ffmpeg) {
+    state.toolsReady = !!(cfg.ffmpeg && cfg.exiftool);
+    state.toolError = cfg.toolError || '找不到 ffmpeg 或 exiftool，请检查工具目录后双击「启动.bat」重新启动。';
+    if (!state.toolsReady) {
       $('#start').disabled = true;
-      $('#crfNote').textContent = '找不到 ffmpeg，压缩功能不可用。';
+      importStatus(state.toolError, true);
     }
   } else {
     $('#engines').textContent = '引擎检测失败';
+    state.toolsReady = false;
+    state.toolError = cfg.error || '无法连接本地服务，请重新启动工具。';
+    importStatus(state.toolError, true);
   }
 
   renderTable();
@@ -480,7 +526,13 @@ async function init() {
     e.preventDefault();
     dz.classList.remove('over');
   }));
-  dz.addEventListener('drop', (e) => handleDrop(e.dataTransfer.files));
+  dz.addEventListener('drop', (e) => {
+    const files = [...e.dataTransfer.files];
+    runImport(async () => {
+      importStatus(`正在查找 ${files.length} 个文件…`);
+      await handleDrop(files);
+    });
+  });
 
   document.addEventListener('dragover', (e) => e.preventDefault());
   document.addEventListener('drop', (e) => e.preventDefault());
@@ -491,7 +543,7 @@ async function init() {
     const v = e.target.value.trim();
     if (!v) return;
     e.target.value = '';
-    scanPaths(v.split(/\r?\n/).map((s) => s.trim()).filter(Boolean));
+    runImport(() => scanPaths(v.split(/\r?\n/).map((s) => s.trim()).filter(Boolean)));
   });
 
   $('#workdir').addEventListener('change', (e) => localStorage.setItem('vc.workdir', e.target.value.trim()));
@@ -499,15 +551,23 @@ async function init() {
 
   /* 原生选择框 */
   $('#pickFiles').addEventListener('click', async () => {
-    const j = await api('/api/browse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"mode":"file"}' });
-    if (j.ok && j.paths.length) scanPaths(j.paths);
-    else if (!j.ok) alert(j.error);
+    runImport(async () => {
+      importStatus('正在打开文件选择框…');
+      const j = await api('/api/browse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"mode":"file"}' });
+      if (j.ok && j.paths.length) await scanPaths(j.paths);
+      else if (!j.ok) throw new Error(j.error);
+      else importStatus('已取消选择');
+    });
   });
 
   $('#pickDir').addEventListener('click', async () => {
-    const j = await api('/api/browse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"mode":"dir"}' });
-    if (j.ok && j.paths.length) scanPaths(j.paths);
-    else if (!j.ok) alert(j.error);
+    runImport(async () => {
+      importStatus('正在打开文件夹选择框…');
+      const j = await api('/api/browse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"mode":"dir"}' });
+      if (j.ok && j.paths.length) await scanPaths(j.paths);
+      else if (!j.ok) throw new Error(j.error);
+      else importStatus('已取消选择');
+    });
   });
 
   /* 文件卡片直接切换；移除按钮独立处理，避免顺带切换到别的文件。 */

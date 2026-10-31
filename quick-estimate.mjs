@@ -1,13 +1,13 @@
-/** 用少量原尺寸局部画面提供数秒级体积粗估，正式压缩仍沿用原参数。 */
+/** 用多个原尺寸区域实测五档 CRF，正式压缩仍沿用原参数。 */
 import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
-const VERSION = 'local-patches-v1';
-const ANCHORS = [22, 28];
-const FRAME_COUNT = 18;
-const TIMEOUT_MS = 4500;
+const VERSION = 'multi-anchor-v2';
+const ANCHORS = [18, 21, 24, 26, 28];
+const FRAME_COUNT = 48;
+const TIMEOUT_MS = 12000;
 const clamp = (n, low, high) => Math.min(high, Math.max(low, n));
 
 /** 优先沿用音轨；与正式编码一样，无法直拷的音频按 192 kbps 计。 */
@@ -29,11 +29,23 @@ export function estimateOne(info, crf) {
   const frames = Math.max(1, (info.fps || 30) * (info.duration || 1));
   const pixels = Math.max(1, (info.width || 1920) * (info.height || 1080));
   const audio = audioBytes(info);
-  const video = model.bpp22 * Math.exp(-model.slope * (crf - 22)) * pixels * frames / 8;
+  const points = model.points;
+  let bpp;
+  if (points?.length >= 2) {
+    // 在相邻实测点之间按对数插值，不再用一条曲线覆盖所有画质档位。
+    let right = points.findIndex((point) => point.crf >= crf);
+    right = clamp(right < 0 ? points.length - 1 : right, 1, points.length - 1);
+    const a = points[right - 1], b = points[right];
+    const weight = (crf - a.crf) / (b.crf - a.crf);
+    bpp = Math.exp(Math.log(a.bpp) + weight * Math.log(b.bpp / a.bpp));
+  } else {
+    bpp = model.bpp22 * Math.exp(-model.slope * (crf - 22));
+  }
+  const video = bpp * pixels * frames / 8;
   // 编码包之外预留少量封装空间，避免短片的音频/MP4 开销被忽略。
   const overhead = Math.max(4096, (video + audio) * 0.003);
   const bytes = Math.round(video + audio + overhead);
-  const outside = Math.max(0, ANCHORS[0] - crf, crf - ANCHORS[1]);
+  const outside = Math.max(0, ANCHORS[0] - crf, crf - ANCHORS.at(-1));
   const uncertainty = clamp(model.uncertainty + outside * 0.025, 0.3, 0.75);
   return { crf, bytes, lowBytes: Math.round(video * (1 - uncertainty) + audio + overhead),
     highBytes: Math.round(video * (1 + uncertainty) + audio + overhead),
@@ -46,8 +58,8 @@ export function buildTable(info) {
 }
 
 /** 解析内存中的编码包统计，把片段首帧按正式 GOP 摊销。 */
-function parsePackets(text, pixels, keyint) {
-  const streams = [[], []];
+function parsePackets(text, pixels, keyint, frameCount) {
+  const streams = ANCHORS.map(() => []);
   for (const line of text.split(/\r?\n/)) {
     if (!line.trim() || line.startsWith('#')) continue;
     const fields = line.split(',');
@@ -56,8 +68,10 @@ function parsePackets(text, pixels, keyint) {
     if (streams[stream] && Number.isFinite(bytes) && bytes > 0) streams[stream].push(bytes);
   }
   return streams.map((packets) => {
-    if (packets.length < 10) throw new Error('有效样本不足');
-    const inter = packets.slice(1).reduce((a, b) => a + b, 0) / (packets.length - 1);
+    if (packets.length < frameCount) throw new Error('有效样本不足');
+    // 极短片段的起步与收尾码率不代表稳定编码，保留中间帧统计。
+    const stable = packets.slice(Math.min(12, Math.floor(frameCount / 4)), -Math.max(1, Math.min(6, Math.floor(frameCount / 8))));
+    const inter = stable.reduce((a, b) => a + b, 0) / stable.length;
     return (packets[0] / keyint + inter * (1 - 1 / keyint)) * 8 / pixels;
   });
 }
@@ -93,25 +107,24 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
     return saving;
   }
 
-  /** 直接跳到短时间窗，保留三个位置的原始像素，不做整帧 4K 试压。 */
+  /** 分散时间与空间取连续原尺寸区域，减少小块拼接边界的影响。 */
   function sample(info, fraction) {
-    const width = Math.min(320, Math.floor(info.width / 2) * 2);
-    const height = Math.min(180, Math.floor(info.height / 2) * 2);
+    const width = Math.min(640, Math.floor(info.width / 2) * 2);
+    const height = Math.min(360, Math.floor(info.height / 2) * 2);
     if (width < 32 || height < 32) return Promise.reject(new Error('画面过小，使用参数粗估'));
+    const frameCount = Math.min(FRAME_COUNT, Math.floor((info.duration || 0) * (info.fps || 30)) - 1);
+    if (frameCount < 10) return Promise.reject(new Error('视频过短，使用参数粗估'));
     const keyint = Math.max(24, Math.round(info.fps || 30));
-    const filter = `[0:v:0]split=3[a][b][c];`
-      + `[a]crop=${width}:${height}:(iw-${width})*0.2:(ih-${height})*0.25[a0];`
-      + `[b]crop=${width}:${height}:(iw-${width})*0.5:(ih-${height})*0.5[b0];`
-      + `[c]crop=${width}:${height}:(iw-${width})*0.8:(ih-${height})*0.75[c0];`
-      + '[a0][b0][c0]hstack=3,split=2[p0][p1]';
-    const time = Math.min((info.duration || 0) * fraction, Math.max(0, (info.duration || 0) - 0.65));
+    const filter = `[0:v:0]crop=${width}:${height}:(iw-${width})*${fraction}:(ih-${height})*${fraction},split=${ANCHORS.length}${ANCHORS.map((_, i) => `[p${i}]`).join('')}`;
+    const time = Math.min((info.duration || 0) * fraction,
+      Math.max(0, (info.duration || 0) - (frameCount + 1) / (info.fps || 30)));
     const args = ['-hide_banner', '-loglevel', 'error', '-threads', '2', '-ss', time.toFixed(3),
       '-noautorotate', '-i', info.path, '-filter_complex_threads', '1', '-filter_complex', filter,
-      '-map', '[p0]', '-map', '[p1]', '-an', '-sn', '-dn', '-c:v', 'libx265', '-preset', 'medium',
-      '-crf:v:0', String(ANCHORS[0]), '-crf:v:1', String(ANCHORS[1]),
+      ...ANCHORS.flatMap((_, i) => ['-map', `[p${i}]`]), '-an', '-sn', '-dn', '-c:v', 'libx265', '-preset', 'medium',
+      ...ANCHORS.flatMap((crf, i) => [`-crf:v:${i}`, String(crf)]),
       '-pix_fmt', info.is10bit || info.isHDR ? 'yuv420p10le' : 'yuv420p',
       '-x265-params', `pools=1:frame-threads=1:keyint=${keyint}:min-keyint=${Math.max(12, Math.round(keyint / 2))}:log-level=error`,
-      '-frames:v:0', String(FRAME_COUNT), '-frames:v:1', String(FRAME_COUNT),
+      ...ANCHORS.flatMap((_, i) => [`-frames:v:${i}`, String(frameCount)]),
       '-fps_mode', 'passthrough', '-f', 'framecrc', 'pipe:1'];
     return new Promise((resolve, reject) => {
       let child;
@@ -120,7 +133,7 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
           maxBuffer: 256 * 1024, encoding: 'utf8' }, (error, stdout) => {
           active.delete(child);
           if (error) return reject(error);
-          try { resolve(parsePackets(stdout, width * height * 3, keyint)); }
+          try { resolve(parsePackets(stdout, width * height, keyint, frameCount)); }
           catch (e) { reject(e); }
         });
         active.add(child);
@@ -128,21 +141,24 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
     });
   }
 
-  /** 两个时间窗并行分析；超时或失败就保留粗估，避免用户等待完整编码。 */
+  /** 多个时间窗并行分析五档 CRF，仍只试压局部画面，不生成完整视频。 */
   async function analyze(info) {
     const started = performance.now();
     if (!getFfmpeg() || isCompressing()) return fallbackModel('压缩时暂用参数粗估');
-    const settled = await Promise.allSettled([sample(info, 0.25), sample(info, 0.7)]);
+    const settled = await Promise.allSettled([0.15, 0.5, 0.85].map((fraction) => sample(info, fraction)));
     const samples = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
     if (!samples.length) return { ...fallbackModel('快速分析未完成，已使用参数粗估'), elapsedMs: Math.round(performance.now() - started) };
     const means = ANCHORS.map((_, i) => samples.reduce((sum, row) => sum + row[i], 0) / samples.length);
-    const slope = clamp(Math.log(means[0] / means[1]) / 6, 0.06, 0.25);
-    const spread = samples.length > 1 ? Math.abs(samples[0][0] - samples[1][0]) / means[0] : 0.5;
-    // 局部边界比整帧多，统一保守修正；不同场景的残余误差体现在范围里。
-    return { kind: 'sample', bpp22: means[0] * 0.96, slope,
+    const spread = samples.length > 1 ? Math.max(...means.map((mean, i) =>
+      Math.sqrt(samples.reduce((sum, row) => sum + (row[i] - mean) ** 2, 0) / samples.length) / mean)) : 0.5;
+    // 局部样本仍不能代表整幅画面，保留边界修正与场景差异的宽范围。
+    const points = ANCHORS.map((crf, i) => ({ crf, bpp: means[i] * 0.96 }));
+    // 极少量样本可能让相邻点轻微反转，维持选档时体积随 CRF 增大而不增。
+    for (let i = 1; i < points.length; i++) points[i].bpp = Math.min(points[i].bpp, points[i - 1].bpp);
+    return { kind: 'sample', points,
       uncertainty: clamp(0.3 + spread * 0.5 + (info.isHDR || info.is10bit ? 0.15 : 0), 0.3, 0.65),
       elapsedMs: Math.round(performance.now() - started), sampleWindows: samples.length,
-      framesPerWindow: FRAME_COUNT, anchors: ANCHORS };
+      framesPerWindow: Math.min(FRAME_COUNT, Math.floor((info.duration || 0) * (info.fps || 30)) - 1), anchors: ANCHORS };
   }
 
   return {
