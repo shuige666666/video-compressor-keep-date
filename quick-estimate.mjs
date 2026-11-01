@@ -1,12 +1,14 @@
-/** 用多个原尺寸区域实测五档 CRF，正式压缩仍沿用原参数。 */
+/** 用32帧完整画面实测CRF24，其他档位按经验曲线粗估；正式压缩参数不变。 */
 import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { readVideoTimeline } from './video-timeline.mjs';
 
-const VERSION = 'multi-anchor-v2';
-const ANCHORS = [18, 21, 24, 26, 28];
-const FRAME_COUNT = 48;
+const VERSION = 'full-frame-crf24-v3';
+const ANCHOR_CRF = 24;
+const SLOPE = 0.13;
+const FRAME_COUNT = 32;
 const TIMEOUT_MS = 12000;
 const clamp = (n, low, high) => Math.min(high, Math.max(low, n));
 
@@ -26,18 +28,14 @@ function fallbackModel(reason = '') {
 /** 由当前视频的模型生成某档大小及经验范围；范围不是统计置信区间。 */
 export function estimateOne(info, crf) {
   const model = info.sizeModel || fallbackModel();
-  const frames = Math.max(1, (info.fps || 30) * (info.duration || 1));
+  const frames = Math.max(1, model.totalFrames || (info.fps || 30) * (info.duration || 1));
   const pixels = Math.max(1, (info.width || 1920) * (info.height || 1080));
   const audio = audioBytes(info);
   const points = model.points;
   let bpp;
-  if (points?.length >= 2) {
-    // 在相邻实测点之间按对数插值，不再用一条曲线覆盖所有画质档位。
-    let right = points.findIndex((point) => point.crf >= crf);
-    right = clamp(right < 0 ? points.length - 1 : right, 1, points.length - 1);
-    const a = points[right - 1], b = points[right];
-    const weight = (crf - a.crf) / (b.crf - a.crf);
-    bpp = Math.exp(Math.log(a.bpp) + weight * Math.log(b.bpp / a.bpp));
+  if (points?.length) {
+    // 只有24档为实测点，其他档位均沿用固定经验斜率，不把推算标成多档实测。
+    bpp = points[0].bpp * Math.exp(-(model.slope || SLOPE) * (crf - points[0].crf));
   } else {
     bpp = model.bpp22 * Math.exp(-model.slope * (crf - 22));
   }
@@ -45,10 +43,13 @@ export function estimateOne(info, crf) {
   // 编码包之外预留少量封装空间，避免短片的音频/MP4 开销被忽略。
   const overhead = Math.max(4096, (video + audio) * 0.003);
   const bytes = Math.round(video + audio + overhead);
-  const outside = Math.max(0, ANCHORS[0] - crf, crf - ANCHORS.at(-1));
+  const outside = model.kind === 'sample' ? Math.abs(crf - ANCHOR_CRF) : 0;
   const uncertainty = clamp(model.uncertainty + outside * 0.025, 0.3, 0.75);
+  // 单窗口曾出现实际大小接近预估两倍的情况，上界独立放宽，避免范围给出虚假的把握。
+  const upperUncertainty = model.kind === 'sample'
+    ? clamp((model.upperUncertainty ?? model.uncertainty) + outside * 0.025, 0.3, 1.5) : uncertainty;
   return { crf, bytes, lowBytes: Math.round(video * (1 - uncertainty) + audio + overhead),
-    highBytes: Math.round(video * (1 + uncertainty) + audio + overhead),
+    highBytes: Math.round(video * (1 + upperUncertainty) + audio + overhead),
     ratio: info.size ? bytes / info.size : 0, bigger: !!info.size && bytes > info.size };
 }
 
@@ -59,21 +60,18 @@ export function buildTable(info) {
 
 /** 解析内存中的编码包统计，把片段首帧按正式 GOP 摊销。 */
 function parsePackets(text, pixels, keyint, frameCount) {
-  const streams = ANCHORS.map(() => []);
+  const packets = [];
   for (const line of text.split(/\r?\n/)) {
     if (!line.trim() || line.startsWith('#')) continue;
     const fields = line.split(',');
-    const stream = Number(fields[0]);
     const bytes = Number(fields[4]);
-    if (streams[stream] && Number.isFinite(bytes) && bytes > 0) streams[stream].push(bytes);
+    if (Number(fields[0]) === 0 && Number.isFinite(bytes) && bytes > 0) packets.push(bytes);
   }
-  return streams.map((packets) => {
-    if (packets.length < frameCount) throw new Error('有效样本不足');
-    // 极短片段的起步与收尾码率不代表稳定编码，保留中间帧统计。
-    const stable = packets.slice(Math.min(12, Math.floor(frameCount / 4)), -Math.max(1, Math.min(6, Math.floor(frameCount / 8))));
-    const inter = stable.reduce((a, b) => a + b, 0) / stable.length;
-    return (packets[0] / keyint + inter * (1 - 1 / keyint)) * 8 / pixels;
-  });
+  if (packets.length !== frameCount) throw new Error('有效样本不足');
+  // 沿用对比试验的统计口径，不在切换采样策略时同时引入未经验证的新修正。
+  const stable = packets.slice(Math.min(12, Math.floor(frameCount / 4)), -Math.max(1, Math.min(6, Math.floor(frameCount / 8))));
+  const inter = stable.reduce((a, b) => a + b, 0) / stable.length;
+  return (packets[0] / keyint + inter * (1 - 1 / keyint)) * 8 / pixels;
 }
 
 /** 创建带缓存和时间上限的快速估算器，整个过程不写试压视频。 */
@@ -107,25 +105,24 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
     return saving;
   }
 
-  /** 分散时间与空间取连续原尺寸区域，减少小块拼接边界的影响。 */
-  function sample(info, fraction) {
-    const width = Math.min(640, Math.floor(info.width / 2) * 2);
-    const height = Math.min(360, Math.floor(info.height / 2) * 2);
+  /** 在中间位置试压完整画面，保持与正式编码相同的旋转处理及像素精度。 */
+  function sample(info, totalFrames) {
+    const width = info.width;
+    const height = info.height;
     if (width < 32 || height < 32) return Promise.reject(new Error('画面过小，使用参数粗估'));
-    const frameCount = Math.min(FRAME_COUNT, Math.floor((info.duration || 0) * (info.fps || 30)) - 1);
+    const frameCount = Math.min(FRAME_COUNT, totalFrames - 1);
     if (frameCount < 10) return Promise.reject(new Error('视频过短，使用参数粗估'));
     const keyint = Math.max(24, Math.round(info.fps || 30));
-    const filter = `[0:v:0]crop=${width}:${height}:(iw-${width})*${fraction}:(ih-${height})*${fraction},split=${ANCHORS.length}${ANCHORS.map((_, i) => `[p${i}]`).join('')}`;
-    const time = Math.min((info.duration || 0) * fraction,
+    const time = Math.min((info.duration || 0) * 0.5,
       Math.max(0, (info.duration || 0) - (frameCount + 1) / (info.fps || 30)));
     const args = ['-hide_banner', '-loglevel', 'error', '-threads', '2', '-ss', time.toFixed(3),
-      '-noautorotate', '-i', info.path, '-filter_complex_threads', '1', '-filter_complex', filter,
-      ...ANCHORS.flatMap((_, i) => ['-map', `[p${i}]`]), '-an', '-sn', '-dn', '-c:v', 'libx265', '-preset', 'medium',
-      ...ANCHORS.flatMap((crf, i) => [`-crf:v:${i}`, String(crf)]),
+      '-i', info.path, '-filter_threads', '1', '-map', '0:v:0',
+      '-an', '-sn', '-dn', '-c:v', 'libx265', '-preset', 'medium', '-crf', String(ANCHOR_CRF),
       '-pix_fmt', info.is10bit || info.isHDR ? 'yuv420p10le' : 'yuv420p',
-      '-x265-params', `pools=1:frame-threads=1:keyint=${keyint}:min-keyint=${Math.max(12, Math.round(keyint / 2))}:log-level=error`,
-      ...ANCHORS.flatMap((_, i) => [`-frames:v:${i}`, String(frameCount)]),
-      '-fps_mode', 'passthrough', '-f', 'framecrc', 'pipe:1'];
+      '-x265-params', [`keyint=${keyint}`, `min-keyint=${Math.max(12, Math.round((info.fps || 30) / 2))}`,
+        'log-level=error', 'info=0', info.prim && `colorprim=${info.prim}`,
+        info.trc && `transfer=${info.trc}`, info.matrix && `colormatrix=${info.matrix}`].filter(Boolean).join(':'),
+      '-frames:v', String(frameCount), '-fps_mode', 'passthrough', '-enc_time_base', '-1', '-f', 'framecrc', 'pipe:1'];
     return new Promise((resolve, reject) => {
       let child;
       try {
@@ -133,7 +130,7 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
           maxBuffer: 256 * 1024, encoding: 'utf8' }, (error, stdout) => {
           active.delete(child);
           if (error) return reject(error);
-          try { resolve(parsePackets(stdout, width * height, keyint, frameCount)); }
+          try { resolve({ bpp: parsePackets(stdout, width * height, keyint, frameCount), frameCount }); }
           catch (e) { reject(e); }
         });
         active.add(child);
@@ -141,24 +138,24 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
     });
   }
 
-  /** 多个时间窗并行分析五档 CRF，仍只试压局部画面，不生成完整视频。 */
+  /** 只实测24档的一个短窗口，MP4/MOV优先读取真实帧数，其他容器沿用元数据。 */
   async function analyze(info) {
     const started = performance.now();
     if (!getFfmpeg() || isCompressing()) return fallbackModel('压缩时暂用参数粗估');
-    const settled = await Promise.allSettled([0.15, 0.5, 0.85].map((fraction) => sample(info, fraction)));
-    const samples = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
-    if (!samples.length) return { ...fallbackModel('快速分析未完成，已使用参数粗估'), elapsedMs: Math.round(performance.now() - started) };
-    const means = ANCHORS.map((_, i) => samples.reduce((sum, row) => sum + row[i], 0) / samples.length);
-    const spread = samples.length > 1 ? Math.max(...means.map((mean, i) =>
-      Math.sqrt(samples.reduce((sum, row) => sum + (row[i] - mean) ** 2, 0) / samples.length) / mean)) : 0.5;
-    // 局部样本仍不能代表整幅画面，保留边界修正与场景差异的宽范围。
-    const points = ANCHORS.map((crf, i) => ({ crf, bpp: means[i] * 0.96 }));
-    // 极少量样本可能让相邻点轻微反转，维持选档时体积随 CRF 增大而不增。
-    for (let i = 1; i < points.length; i++) points[i].bpp = Math.min(points[i].bpp, points[i - 1].bpp);
-    return { kind: 'sample', points,
-      uncertainty: clamp(0.3 + spread * 0.5 + (info.isHDR || info.is10bit ? 0.15 : 0), 0.3, 0.65),
-      elapsedMs: Math.round(performance.now() - started), sampleWindows: samples.length,
-      framesPerWindow: Math.min(FRAME_COUNT, Math.floor((info.duration || 0) * (info.fps || 30)) - 1), anchors: ANCHORS };
+    const timeline = await readVideoTimeline(info.path).catch(() => null);
+    const totalFrames = timeline?.count || Math.floor((info.duration || 0) * (info.fps || 30));
+    if (isCompressing()) return fallbackModel('压缩时暂用参数粗估');
+    try {
+      const result = await sample(info, totalFrames);
+      return { kind: 'sample', points: [{ crf: ANCHOR_CRF, bpp: result.bpp }], slope: SLOPE,
+        totalFrames, fullFrame: true, uncertainty: info.isHDR || info.is10bit ? 0.65 : 0.5,
+        upperUncertainty: info.isHDR || info.is10bit ? 1.15 : 1,
+        elapsedMs: Math.round(performance.now() - started), sampleWindows: 1,
+        framesPerWindow: result.frameCount, anchors: [ANCHOR_CRF] };
+    } catch {
+      // 超时、样本不足或被正式压缩中止时保留参数参考，不缓存失败样本。
+      return { ...fallbackModel('快速分析未完成，已使用参数粗估'), elapsedMs: Math.round(performance.now() - started) };
+    }
   }
 
   return {

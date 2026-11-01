@@ -64,9 +64,8 @@ function estimateStatus(info) {
   if (info.estimateState === 'pending') return '参考值 · 等待快速分析';
   const model = info.sizeModel;
   if (model && model.kind === 'sample') {
-    const count = model.anchors?.length || 2;
-    const warning = model.sampleWindows < 3 ? ' · 部分样本' : '';
-    return `${count} 档局部实测粗估 · ${model.cached ? '已缓存' : (model.elapsedMs / 1000).toFixed(1) + ' 秒'}${warning}`;
+    const timing = model.cached ? '已缓存' : (model.elapsedMs / 1000).toFixed(1) + ' 秒';
+    return `完整画面 ${model.framesPerWindow} 帧 · CRF ${model.anchors[0]} 单档实测，其余推算 · ${timing}`;
   }
   return '参数粗估';
 }
