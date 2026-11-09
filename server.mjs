@@ -782,6 +782,14 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// 由启动脚本调用时，在服务就绪后打开浏览器，避免固定等待造成连接失败。
+function openBrowser() {
+  if (!process.argv.includes('--open')) return;
+  const url = `http://127.0.0.1:${PORT}`;
+  const child = spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/c', 'start', '', url], { windowsHide: true });
+  child.on('error', (e) => console.error(`无法自动打开浏览器，请手动访问 ${url}：${e.message}`));
+}
+
 detectTools().then(() => {
   const missing = [];
   if (!FF) missing.push('ffmpeg');
@@ -790,6 +798,7 @@ detectTools().then(() => {
   server.on('error', (e) => {
     if (e.code === 'EADDRINUSE') {
       console.log(`\n  端口 ${PORT} 已经有一个在跑了，直接打开 http://localhost:${PORT} 就行。\n`);
+      openBrowser();
       process.exit(0);
     }
     throw e;
@@ -804,6 +813,7 @@ detectTools().then(() => {
     if (missing.length) console.log(`  缺少：${missing.join('、')}，压缩功能不可用`);
     console.log('  关掉这个窗口即退出');
     console.log('');
+    openBrowser();
   });
 }).catch((e) => {
   console.error('启动失败：' + e.message);
