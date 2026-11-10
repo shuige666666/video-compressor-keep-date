@@ -1,0 +1,782 @@
+[
+  {
+    "clip": "C1",
+    "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261031_202656.mp4",
+    "phone": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261031_202656_COMPRESSED.mp4",
+    "sourceBytes": 228908339,
+    "phoneBytes": 79650456,
+    "fullRatio": 0.34795786098469744,
+    "info": {
+      "path": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261031_202656_COMPRESSED.mp4",
+      "name": "VID_20261031_202656_COMPRESSED.mp4",
+      "size": 79650456,
+      "duration": 36.28,
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "fps": 30.04,
+      "tbr": 30,
+      "tbn": 0,
+      "vBitrate": 17239,
+      "codec": "hevc",
+      "range": "tv",
+      "prim": "bt470bg/bt470bg/smpte170m",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "rawPrim": "",
+      "rawTrc": "",
+      "rawMatrix": "",
+      "rotation": 90,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:09 22:43:45+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:09 22:43:45+08:00",
+      "qtCreate": "2026:11:09 22:43:45+08:00",
+      "qtModify": "2026:11:09 22:43:45+08:00",
+      "qtTrackCreate": "2026:11:09 22:43:45+08:00",
+      "qtMediaCreate": "2026:11:09 22:43:45+08:00",
+      "qtTrack2Create": "2026:11:09 22:43:45+08:00",
+      "qtDuration": "0:00:36",
+      "encColor": "",
+      "fileCreate": "2026:11:09 22:45:05+08:00",
+      "fileModify": "2026:11:09 22:43:46+08:00",
+      "encoderTag": ""
+    },
+    "sourceFrames": 1090,
+    "phoneFrames": 1090,
+    "maxPtsError": 0,
+    "segment": {
+      "startIdx": 150,
+      "startPts": 5.0029111111111115,
+      "frames": 301,
+      "endPts": 14.988655555555555,
+      "duration": 9.985744444,
+      "avgFps": 30.142970480368923,
+      "requestedStart": 5,
+      "requestedDur": 10,
+      "keyint": 30,
+      "minKeyint": 15
+    },
+    "frames": 301,
+    "sourceVideoPayloadBytes": 63565555,
+    "phoneVideoPayloadBytes": 31323098,
+    "segmentVideoRatio": 0.4927684183674633,
+    "videoMbps": 25.09425165096885,
+    "colorPolicy": "phone BT.601 matrix -> BT.709 matrix, limited range; no primaries/transfer remapping; same native 8-bit resolution",
+    "rawYuvPsnr": {
+      "avg": 49.91641196013286,
+      "min": 44.57,
+      "p5": 45.38
+    },
+    "psnr": {
+      "avg": 44.109401993355505,
+      "min": 42.3,
+      "p5": 42.73
+    },
+    "ssim": {
+      "avg": 0.9930178405315607,
+      "min": 0.987278,
+      "p5": 0.988268
+    },
+    "vmaf": {
+      "avg": 99.72287322259139,
+      "min": 97.00673,
+      "p5": 98.624526
+    },
+    "model": "vmaf_4k_v0.6.1",
+    "subsample": 1,
+    "scoreMs": null,
+    "phoneEncodeTiming": "用户报告：六个完整视频大多在10秒内完成；无逐片测量，不计入本机速度倍数",
+    "payloadOrder": "display-order",
+    "directYuv": {
+      "psnr": {
+        "avg": 49.91641196013286,
+        "min": 44.57,
+        "p5": 45.38
+      },
+      "ssim": {
+        "avg": 0.9948181428571433,
+        "min": 0.989245,
+        "p5": 0.990388
+      },
+      "vmaf": {
+        "avg": 99.80594792026581,
+        "min": 97.48499,
+        "p5": 98.859947
+      }
+    },
+    "tagMatrix": {
+      "psnr": {
+        "avg": 44.109401993355505,
+        "min": 42.3,
+        "p5": 42.73
+      },
+      "ssim": {
+        "avg": 0.9930178405315607,
+        "min": 0.987278,
+        "p5": 0.988268
+      },
+      "vmaf": {
+        "avg": 99.72287322259139,
+        "min": 97.00673,
+        "p5": 98.624526
+      }
+    },
+    "colorConclusion": "two explicit hypotheses; not evidence by labels alone"
+  },
+  {
+    "clip": "C2",
+    "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261108_204248.mp4",
+    "phone": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261108_204248_COMPRESSED.mp4",
+    "sourceBytes": 252502597,
+    "phoneBytes": 136983104,
+    "fullRatio": 0.5425017628630568,
+    "info": {
+      "path": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261108_204248_COMPRESSED.mp4",
+      "name": "VID_20261108_204248_COMPRESSED.mp4",
+      "size": 136983104,
+      "duration": 39.63,
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "fps": 59.85,
+      "tbr": 60,
+      "tbn": 0,
+      "vBitrate": 27326,
+      "codec": "hevc",
+      "range": "tv",
+      "prim": "bt470bg/bt470bg/smpte170m",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "rawPrim": "",
+      "rawTrc": "",
+      "rawMatrix": "",
+      "rotation": 0,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:09 22:44:30+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:09 22:44:30+08:00",
+      "qtCreate": "2026:11:09 22:44:30+08:00",
+      "qtModify": "2026:11:09 22:44:30+08:00",
+      "qtTrackCreate": "2026:11:09 22:44:30+08:00",
+      "qtMediaCreate": "2026:11:09 22:44:30+08:00",
+      "qtTrack2Create": "2026:11:09 22:44:30+08:00",
+      "qtDuration": "0:00:40",
+      "encColor": "",
+      "fileCreate": "2026:11:09 22:45:06+08:00",
+      "fileModify": "2026:11:09 22:44:30+08:00",
+      "encoderTag": ""
+    },
+    "sourceFrames": 2372,
+    "phoneFrames": 2372,
+    "maxPtsError": 0,
+    "segment": {
+      "startIdx": 597,
+      "startPts": 10.0037,
+      "frames": 600,
+      "endPts": 19.99087777777778,
+      "duration": 9.987177778,
+      "avgFps": 60.07703210427422,
+      "requestedStart": 10,
+      "requestedDur": 10,
+      "keyint": 60,
+      "minKeyint": 30
+    },
+    "frames": 600,
+    "sourceVideoPayloadBytes": 62305965,
+    "phoneVideoPayloadBytes": 32886152,
+    "segmentVideoRatio": 0.527817071768329,
+    "videoMbps": 26.342698793200555,
+    "colorPolicy": "phone BT.601 matrix -> BT.709 matrix, limited range; no primaries/transfer remapping; same native 8-bit resolution",
+    "rawYuvPsnr": {
+      "avg": 35.94311666666663,
+      "min": 35,
+      "p5": 35.36
+    },
+    "psnr": {
+      "avg": 37.36263333333338,
+      "min": 35.77,
+      "p5": 36.42
+    },
+    "ssim": {
+      "avg": 0.961960623333333,
+      "min": 0.949734,
+      "p5": 0.955422
+    },
+    "vmaf": {
+      "avg": 89.08856785500001,
+      "min": 83.486594,
+      "p5": 86.22379
+    },
+    "model": "vmaf_4k_v0.6.1",
+    "subsample": 1,
+    "scoreMs": 260960,
+    "phoneEncodeTiming": "用户报告：六个完整视频大多在10秒内完成；无逐片测量，不计入本机速度倍数",
+    "payloadOrder": "display-order",
+    "directYuv": {
+      "psnr": {
+        "avg": 35.94311666666663,
+        "min": 35,
+        "p5": 35.36
+      },
+      "ssim": {
+        "avg": 0.96330708,
+        "min": 0.950954,
+        "p5": 0.956822
+      },
+      "vmaf": {
+        "avg": 88.72294677333325,
+        "min": 83.395424,
+        "p5": 85.95558
+      }
+    },
+    "tagMatrix": {
+      "psnr": {
+        "avg": 37.36263333333338,
+        "min": 35.77,
+        "p5": 36.42
+      },
+      "ssim": {
+        "avg": 0.961960623333333,
+        "min": 0.949734,
+        "p5": 0.955422
+      },
+      "vmaf": {
+        "avg": 89.08856785500001,
+        "min": 83.486594,
+        "p5": 86.22379
+      }
+    },
+    "colorConclusion": "two explicit hypotheses; not evidence by labels alone"
+  },
+  {
+    "clip": "C3",
+    "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261108_211624.mp4",
+    "phone": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261108_211624_COMPRESSED.mp4",
+    "sourceBytes": 146438651,
+    "phoneBytes": 73804865,
+    "fullRatio": 0.5039985310981866,
+    "info": {
+      "path": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261108_211624_COMPRESSED.mp4",
+      "name": "VID_20261108_211624_COMPRESSED.mp4",
+      "size": 73804865,
+      "duration": 18.76,
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "fps": 59.92,
+      "tbr": 60,
+      "tbn": 0,
+      "vBitrate": 31152,
+      "codec": "hevc",
+      "range": "tv",
+      "prim": "bt470bg/bt470bg/smpte170m",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "rawPrim": "",
+      "rawTrc": "",
+      "rawMatrix": "",
+      "rotation": 90,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:09 22:44:44+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:09 22:44:44+08:00",
+      "qtCreate": "2026:11:09 22:44:44+08:00",
+      "qtModify": "2026:11:09 22:44:44+08:00",
+      "qtTrackCreate": "2026:11:09 22:44:44+08:00",
+      "qtMediaCreate": "2026:11:09 22:44:44+08:00",
+      "qtTrack2Create": "2026:11:09 22:44:44+08:00",
+      "qtDuration": "18.76 s",
+      "encColor": "",
+      "fileCreate": "2026:11:09 22:45:07+08:00",
+      "fileModify": "2026:11:09 22:44:44+08:00",
+      "encoderTag": ""
+    },
+    "sourceFrames": 1124,
+    "phoneFrames": 1124,
+    "maxPtsError": 0,
+    "segment": {
+      "startIdx": 241,
+      "startPts": 4.0075,
+      "frames": 601,
+      "endPts": 14.001455555555555,
+      "duration": 9.993955556,
+      "avgFps": 60.136349079437515,
+      "requestedStart": 4,
+      "requestedDur": 10,
+      "keyint": 60,
+      "minKeyint": 30
+    },
+    "frames": 601,
+    "sourceVideoPayloadBytes": 79349638,
+    "phoneVideoPayloadBytes": 39021141,
+    "segmentVideoRatio": 0.49176205441542153,
+    "videoMbps": 31.235793100218988,
+    "colorPolicy": "phone BT.601 matrix -> BT.709 matrix, limited range; no primaries/transfer remapping; same native 8-bit resolution",
+    "rawYuvPsnr": {
+      "avg": 41.67044925124789,
+      "min": 40.06,
+      "p5": 40.29
+    },
+    "psnr": {
+      "avg": 42.48798668885185,
+      "min": 41.75,
+      "p5": 42.22
+    },
+    "ssim": {
+      "avg": 0.985105868552414,
+      "min": 0.983003,
+      "p5": 0.983567
+    },
+    "vmaf": {
+      "avg": 96.05906208485858,
+      "min": 93.147697,
+      "p5": 95.034881
+    },
+    "model": "vmaf_4k_v0.6.1",
+    "subsample": 1,
+    "scoreMs": 276935,
+    "phoneEncodeTiming": "用户报告：六个完整视频大多在10秒内完成；无逐片测量，不计入本机速度倍数",
+    "payloadOrder": "display-order",
+    "directYuv": {
+      "psnr": {
+        "avg": 41.67044925124789,
+        "min": 40.06,
+        "p5": 40.29
+      },
+      "ssim": {
+        "avg": 0.986702574043262,
+        "min": 0.984531,
+        "p5": 0.985298
+      },
+      "vmaf": {
+        "avg": 95.5281267454244,
+        "min": 92.391508,
+        "p5": 94.485205
+      }
+    },
+    "tagMatrix": {
+      "psnr": {
+        "avg": 42.48798668885185,
+        "min": 41.75,
+        "p5": 42.22
+      },
+      "ssim": {
+        "avg": 0.985105868552414,
+        "min": 0.983003,
+        "p5": 0.983567
+      },
+      "vmaf": {
+        "avg": 96.05906208485858,
+        "min": 93.147697,
+        "p5": 95.034881
+      }
+    },
+    "colorConclusion": "two explicit hypotheses; not evidence by labels alone"
+  },
+  {
+    "clip": "C4",
+    "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261031_204355.mp4",
+    "phone": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261031_204355_COMPRESSED.mp4",
+    "sourceBytes": 52936635,
+    "phoneBytes": 23867408,
+    "fullRatio": 0.4508674946943643,
+    "info": {
+      "path": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261031_204355_COMPRESSED.mp4",
+      "name": "VID_20261031_204355_COMPRESSED.mp4",
+      "size": 23867408,
+      "duration": 7.83,
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "fps": 46.29,
+      "tbr": 30,
+      "tbn": 0,
+      "vBitrate": 24094,
+      "codec": "hevc",
+      "range": "tv",
+      "prim": "bt470bg/bt470bg/smpte170m",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "rawPrim": "",
+      "rawTrc": "",
+      "rawMatrix": "",
+      "rotation": 90,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:09 22:43:53+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:09 22:43:53+08:00",
+      "qtCreate": "2026:11:09 22:43:53+08:00",
+      "qtModify": "2026:11:09 22:43:53+08:00",
+      "qtTrackCreate": "2026:11:09 22:43:53+08:00",
+      "qtMediaCreate": "2026:11:09 22:43:53+08:00",
+      "qtTrack2Create": "2026:11:09 22:43:53+08:00",
+      "qtDuration": "7.83 s",
+      "encColor": "",
+      "fileCreate": "2026:11:09 22:45:06+08:00",
+      "fileModify": "2026:11:09 22:43:53+08:00",
+      "encoderTag": ""
+    },
+    "sourceFrames": 362,
+    "phoneFrames": 362,
+    "maxPtsError": 0,
+    "segment": {
+      "startIdx": 0,
+      "startPts": 0,
+      "frames": 362,
+      "endPts": 7.802777777777778,
+      "duration": 7.802777778,
+      "avgFps": 46.39373442374101,
+      "requestedStart": 0,
+      "requestedDur": null,
+      "keyint": 46,
+      "minKeyint": 23
+    },
+    "frames": 362,
+    "sourceVideoPayloadBytes": 52029271,
+    "phoneVideoPayloadBytes": 23550571,
+    "segmentVideoRatio": 0.4526408029049648,
+    "videoMbps": 24.145832850860923,
+    "colorPolicy": "phone BT.601 matrix -> BT.709 matrix, limited range; no primaries/transfer remapping; same native 8-bit resolution",
+    "rawYuvPsnr": {
+      "avg": 29.28483425414363,
+      "min": 27.23,
+      "p5": 28.12
+    },
+    "psnr": {
+      "avg": 43.331464088397816,
+      "min": 41.8,
+      "p5": 42.31
+    },
+    "ssim": {
+      "avg": 0.98996561878453,
+      "min": 0.984294,
+      "p5": 0.985844
+    },
+    "vmaf": {
+      "avg": 97.79390698066302,
+      "min": 92.674135,
+      "p5": 94.549204
+    },
+    "model": "vmaf_4k_v0.6.1",
+    "subsample": 1,
+    "scoreMs": 190843,
+    "phoneEncodeTiming": "用户报告：六个完整视频大多在10秒内完成；无逐片测量，不计入本机速度倍数",
+    "payloadOrder": "display-order",
+    "directYuv": {
+      "psnr": {
+        "avg": 29.28483425414363,
+        "min": 27.23,
+        "p5": 28.12
+      },
+      "ssim": {
+        "avg": 0.9841214198895027,
+        "min": 0.97688,
+        "p5": 0.980023
+      },
+      "vmaf": {
+        "avg": 98.54446767403313,
+        "min": 88.424728,
+        "p5": 90.953938
+      }
+    },
+    "tagMatrix": {
+      "psnr": {
+        "avg": 43.331464088397816,
+        "min": 41.8,
+        "p5": 42.31
+      },
+      "ssim": {
+        "avg": 0.98996561878453,
+        "min": 0.984294,
+        "p5": 0.985844
+      },
+      "vmaf": {
+        "avg": 97.79390698066302,
+        "min": 92.674135,
+        "p5": 94.549204
+      }
+    },
+    "colorConclusion": "two explicit hypotheses; not evidence by labels alone"
+  },
+  {
+    "clip": "C5",
+    "src": "E:\\VideoEdit\\每天拍几秒企划\\9.35-10.24\\VID_20261003_111508.mp4",
+    "phone": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261003_111508_COMPRESSED.mp4",
+    "sourceBytes": 126474834,
+    "phoneBytes": 63098002,
+    "fullRatio": 0.4988976858431773,
+    "info": {
+      "path": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261003_111508_COMPRESSED.mp4",
+      "name": "VID_20261003_111508_COMPRESSED.mp4",
+      "size": 63098002,
+      "duration": 16.21,
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "fps": 59.92,
+      "tbr": 60,
+      "tbn": 0,
+      "vBitrate": 30824,
+      "codec": "hevc",
+      "range": "tv",
+      "prim": "bt470bg/bt470bg/smpte170m",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "rawPrim": "",
+      "rawTrc": "",
+      "rawMatrix": "",
+      "rotation": 90,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:09 22:43:32+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:09 22:43:32+08:00",
+      "qtCreate": "2026:11:09 22:43:32+08:00",
+      "qtModify": "2026:11:09 22:43:32+08:00",
+      "qtTrackCreate": "2026:11:09 22:43:32+08:00",
+      "qtMediaCreate": "2026:11:09 22:43:32+08:00",
+      "qtTrack2Create": "2026:11:09 22:43:32+08:00",
+      "qtDuration": "16.21 s",
+      "encColor": "",
+      "fileCreate": "2026:11:09 22:45:05+08:00",
+      "fileModify": "2026:11:09 22:43:32+08:00",
+      "encoderTag": ""
+    },
+    "sourceFrames": 971,
+    "phoneFrames": 971,
+    "maxPtsError": 0,
+    "segment": {
+      "startIdx": 240,
+      "startPts": 4.015088888888889,
+      "frames": 600,
+      "endPts": 14.001611111111112,
+      "duration": 9.986522222,
+      "avgFps": 60.080975805392846,
+      "requestedStart": 4,
+      "requestedDur": 10,
+      "keyint": 60,
+      "minKeyint": 30
+    },
+    "frames": 600,
+    "sourceVideoPayloadBytes": 78470586,
+    "phoneVideoPayloadBytes": 38919766,
+    "segmentVideoRatio": 0.49597904111484525,
+    "videoMbps": 31.17783359196735,
+    "colorPolicy": "phone BT.601 matrix -> BT.709 matrix, limited range; no primaries/transfer remapping; same native 8-bit resolution",
+    "rawYuvPsnr": {
+      "avg": 43.22636666666662,
+      "min": 37.15,
+      "p5": 37.8
+    },
+    "psnr": {
+      "avg": 42.76046666666668,
+      "min": 41.17,
+      "p5": 41.88
+    },
+    "ssim": {
+      "avg": 0.9851536433333327,
+      "min": 0.976266,
+      "p5": 0.980345
+    },
+    "vmaf": {
+      "avg": 96.85508367500003,
+      "min": 86.493643,
+      "p5": 93.20594
+    },
+    "model": "vmaf_4k_v0.6.1",
+    "subsample": 1,
+    "scoreMs": 346889,
+    "phoneEncodeTiming": "用户报告：六个完整视频大多在10秒内完成；无逐片测量，不计入本机速度倍数",
+    "payloadOrder": "display-order",
+    "directYuv": {
+      "psnr": {
+        "avg": 43.22636666666662,
+        "min": 37.15,
+        "p5": 37.8
+      },
+      "ssim": {
+        "avg": 0.9866584350000002,
+        "min": 0.977874,
+        "p5": 0.981871
+      },
+      "vmaf": {
+        "avg": 95.97434993166664,
+        "min": 86.578853,
+        "p5": 91.635409
+      }
+    },
+    "tagMatrix": {
+      "psnr": {
+        "avg": 42.76046666666668,
+        "min": 41.17,
+        "p5": 41.88
+      },
+      "ssim": {
+        "avg": 0.9851536433333327,
+        "min": 0.976266,
+        "p5": 0.980345
+      },
+      "vmaf": {
+        "avg": 96.85508367500003,
+        "min": 86.493643,
+        "p5": 93.20594
+      }
+    },
+    "colorConclusion": "two explicit hypotheses; not evidence by labels alone"
+  },
+  {
+    "clip": "C6",
+    "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261031_205503.mp4",
+    "phone": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261031_205503_COMPRESSED.mp4",
+    "sourceBytes": 136269240,
+    "phoneBytes": 76838527,
+    "fullRatio": 0.5638728666865684,
+    "info": {
+      "path": "E:\\VideoEdit\\每天拍几秒企划\\手机相册压缩\\VID_20261031_205503_COMPRESSED.mp4",
+      "name": "VID_20261031_205503_COMPRESSED.mp4",
+      "size": 76838527,
+      "duration": 19.94,
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "fps": 60.06,
+      "tbr": 60.16,
+      "tbn": 0,
+      "vBitrate": 30520,
+      "codec": "hevc",
+      "range": "tv",
+      "prim": "bt470bg/bt470bg/smpte170m",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "rawPrim": "",
+      "rawTrc": "",
+      "rawMatrix": "",
+      "rotation": 0,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:09 22:44:07+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:09 22:44:07+08:00",
+      "qtCreate": "2026:11:09 22:44:07+08:00",
+      "qtModify": "2026:11:09 22:44:07+08:00",
+      "qtTrackCreate": "2026:11:09 22:44:07+08:00",
+      "qtMediaCreate": "2026:11:09 22:44:07+08:00",
+      "qtTrack2Create": "2026:11:09 22:44:07+08:00",
+      "qtDuration": "19.94 s",
+      "encColor": "",
+      "fileCreate": "2026:11:09 22:45:06+08:00",
+      "fileModify": "2026:11:09 22:44:07+08:00",
+      "encoderTag": ""
+    },
+    "sourceFrames": 1197,
+    "phoneFrames": 1197,
+    "maxPtsError": 0,
+    "segment": {
+      "startIdx": 301,
+      "startPts": 5.003,
+      "frames": 600,
+      "endPts": 14.99238888888889,
+      "duration": 9.989388889,
+      "avgFps": 60.06373429516805,
+      "requestedStart": 5,
+      "requestedDur": 10,
+      "keyint": 60,
+      "minKeyint": 30
+    },
+    "frames": 600,
+    "sourceVideoPayloadBytes": 68879566,
+    "phoneVideoPayloadBytes": 38402167,
+    "segmentVideoRatio": 0.5575262625783676,
+    "videoMbps": 30.754367400622275,
+    "colorPolicy": "phone BT.601 matrix -> BT.709 matrix, limited range; no primaries/transfer remapping; same native 8-bit resolution",
+    "rawYuvPsnr": {
+      "avg": 34.027483333333365,
+      "min": 31.55,
+      "p5": 32.89
+    },
+    "psnr": {
+      "avg": 35.86470000000007,
+      "min": 32.63,
+      "p5": 34.28
+    },
+    "ssim": {
+      "avg": 0.9549335316666656,
+      "min": 0.922778,
+      "p5": 0.943228
+    },
+    "vmaf": {
+      "avg": 88.70446875499997,
+      "min": 77.493665,
+      "p5": 85.126724
+    },
+    "model": "vmaf_4k_v0.6.1",
+    "subsample": 1,
+    "scoreMs": 260115,
+    "phoneEncodeTiming": "用户报告：六个完整视频大多在10秒内完成；无逐片测量，不计入本机速度倍数",
+    "payloadOrder": "display-order",
+    "directYuv": {
+      "psnr": {
+        "avg": 34.027483333333365,
+        "min": 31.55,
+        "p5": 32.89
+      },
+      "ssim": {
+        "avg": 0.9555802716666678,
+        "min": 0.923508,
+        "p5": 0.944004
+      },
+      "vmaf": {
+        "avg": 87.23940077333327,
+        "min": 76.564911,
+        "p5": 83.765224
+      }
+    },
+    "tagMatrix": {
+      "psnr": {
+        "avg": 35.86470000000007,
+        "min": 32.63,
+        "p5": 34.28
+      },
+      "ssim": {
+        "avg": 0.9549335316666656,
+        "min": 0.922778,
+        "p5": 0.943228
+      },
+      "vmaf": {
+        "avg": 88.70446875499997,
+        "min": 77.493665,
+        "p5": 85.126724
+      }
+    },
+    "colorConclusion": "two explicit hypotheses; not evidence by labels alone"
+  }
+]

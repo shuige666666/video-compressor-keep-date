@@ -1,0 +1,98 @@
+[
+  {
+    "clip": "C1",
+    "crf": 22,
+    "fastSpeed": 1.7935779816513762,
+    "fastVmafDrop": 0.25,
+    "nvencSpeed": 5.178807947019868,
+    "nvencVmafDrop": 1.1700000000000017
+  },
+  {
+    "clip": "C1",
+    "crf": 24,
+    "fastSpeed": 1.8386308068459658,
+    "fastVmafDrop": 0.3100000000000023,
+    "nvencSpeed": 4.980132450331126,
+    "nvencVmafDrop": 1.4200000000000017
+  },
+  {
+    "clip": "C2",
+    "crf": 22,
+    "fastSpeed": 1.5184304399524378,
+    "fastVmafDrop": 0.5900000000000034,
+    "nvencSpeed": 5.6255506607929515,
+    "nvencVmafDrop": 1.1500000000000057
+  },
+  {
+    "clip": "C2",
+    "crf": 24,
+    "fastSpeed": 1.48109517601043,
+    "fastVmafDrop": 0.519999999999996,
+    "nvencSpeed": 4.982456140350877,
+    "nvencVmafDrop": 1.1799999999999926
+  },
+  {
+    "clip": "C3",
+    "crf": 22,
+    "fastSpeed": 1.4964131994261118,
+    "fastVmafDrop": 0.36999999999999034,
+    "nvencSpeed": 3.4766666666666666,
+    "nvencVmafDrop": 2.049999999999997
+  },
+  {
+    "clip": "C3",
+    "crf": 24,
+    "fastSpeed": 1.3684210526315792,
+    "fastVmafDrop": 0.2600000000000051,
+    "nvencSpeed": 3.3687707641196014,
+    "nvencVmafDrop": 1.8599999999999994
+  },
+  {
+    "clip": "C4",
+    "crf": 22,
+    "fastSpeed": 2.0258964143426295,
+    "fastVmafDrop": 0.6200000000000045,
+    "nvencSpeed": 5.681564245810057,
+    "nvencVmafDrop": 1.980000000000004
+  },
+  {
+    "clip": "C4",
+    "crf": 24,
+    "fastSpeed": 1.8036437246963561,
+    "fastVmafDrop": 0.769999999999996,
+    "nvencSpeed": 5.033898305084746,
+    "nvencVmafDrop": 2.6200000000000045
+  },
+  {
+    "clip": "C5",
+    "crf": 22,
+    "fastSpeed": 1.8128205128205128,
+    "fastVmafDrop": 0.6799999999999926,
+    "nvencSpeed": 5.217712177121771,
+    "nvencVmafDrop": 2.1899999999999977
+  },
+  {
+    "clip": "C5",
+    "crf": 24,
+    "fastSpeed": 1.476477683956574,
+    "fastVmafDrop": 0.710000000000008,
+    "nvencSpeed": 4.584269662921349,
+    "nvencVmafDrop": 3.0
+  },
+  {
+    "clip": "C6",
+    "crf": 22,
+    "fastSpeed": 1.3288331726133078,
+    "fastVmafDrop": 0.5700000000000074,
+    "nvencSpeed": 5.88888888888889,
+    "nvencVmafDrop": 1.4000000000000057
+  },
+  {
+    "clip": "C6",
+    "crf": 24,
+    "fastSpeed": 1.802555168408827,
+    "fastVmafDrop": 0.6000000000000085,
+    "nvencSpeed": 6.867256637168141,
+    "nvencVmafDrop": 1.6600000000000108
+  }
+]

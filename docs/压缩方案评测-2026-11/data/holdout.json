@@ -1,0 +1,47 @@
+{
+  "source": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261031_204856.mp4",
+  "startIdx": 90,
+  "startPts": 1.5137666666666667,
+  "frames": 600,
+  "duration": 9.997644444444443,
+  "sourceBytes": 99677900,
+  "rows": [
+    {
+      "label": "x265_medium_crf22",
+      "bytes": 34429540,
+      "kbps": 27196,
+      "encodeMs": 120527,
+      "frames": 600,
+      "maxErr": 1.7763568394002505e-15,
+      "timelineOk": true,
+      "psnr": 43.32061666666666,
+      "ssim": 0.9822714733333332,
+      "vmaf": 95.19374764666667
+    },
+    {
+      "label": "x265_fast_crf21",
+      "bytes": 38474438,
+      "kbps": 30429,
+      "encodeMs": 78505,
+      "frames": 600,
+      "maxErr": 1.7763568394002505e-15,
+      "timelineOk": true,
+      "psnr": 43.44754999999998,
+      "ssim": 0.9826286666666656,
+      "vmaf": 95.36934279333337
+    },
+    {
+      "label": "nvenc_p7_eq_medium22",
+      "bytes": 36031125,
+      "kbps": 28505,
+      "encodeMs": 22393,
+      "frames": 600,
+      "maxErr": 1.7763568394002505e-15,
+      "timelineOk": true,
+      "psnr": 42.505700000000004,
+      "ssim": 0.9805298800000003,
+      "vmaf": 93.72126636833339
+    }
+  ],
+  "generatedAt": "2026-11-09T13:43:59.926Z"
+}

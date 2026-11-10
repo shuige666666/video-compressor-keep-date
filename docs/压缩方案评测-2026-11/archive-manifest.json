@@ -1,0 +1,163 @@
+{
+  "archivedAt": "2026-11-10",
+  "experimentDate": "2026-11-09",
+  "sourceRootHistorical": "E:\\VideoEdit\\一些工具或者脚本\\用于视频压缩算法比对",
+  "scope": {
+    "formalPCVersions": 44,
+    "phoneVersions": 6,
+    "holdoutVersions": 3,
+    "speedRetests": 4,
+    "PCMetricRecords": 44,
+    "phoneMetricRecords": 12,
+    "containsMedia": false
+  },
+  "sourceCopies": [
+    {
+      "source": "report/data.json",
+      "archive": "data/summary.json",
+      "sourceSha256": "aae13d5ffa879f5ed3a1e7471afafc04a992767265c55fda965f31b3c01c5273"
+    },
+    {
+      "source": "report/汇总.csv",
+      "archive": "data/正式编码结果.csv",
+      "sourceSha256": "5ee8dba35be924ebad8b599797db306fc03d31f7c8fdfaa4e40d690342117e76"
+    },
+    {
+      "source": "report/all-variants-table-data.json",
+      "archive": "data/segment-sizes.json",
+      "sourceSha256": "27fa3ffaef6f880eeb3d8f5b966b8606b72607c4ce93a89b315c86c6255fd587"
+    },
+    {
+      "source": "report/phone-data.json",
+      "archive": "data/phone.json",
+      "sourceSha256": "bad0d4ebcaa3fd44837246f94ec9a54f585cc0c073aa44e5234c1a63d15697c7"
+    },
+    {
+      "source": "report/手机相册汇总.csv",
+      "archive": "data/手机相册结果.csv",
+      "sourceSha256": "f083695ebe26e6f7c388fd9bb92d71a4efb67867a43e1ed8edbfdc51cface444"
+    },
+    {
+      "source": "report/holdout.json",
+      "archive": "data/holdout.json",
+      "sourceSha256": "3e69b806b9d0487402702e5f88b5723aa8d07d1247b79610c59d8fc4f0efdd33"
+    },
+    {
+      "source": "media/manifest.json",
+      "archive": "data/manifest.json",
+      "sourceSha256": "cde3821549d874515b52860819ff9299eb0a08f8dddecc9a9f47b401e00cfa4e"
+    },
+    {
+      "source": "media/frames.json",
+      "archive": "data/screenshots-plan.json",
+      "sourceSha256": "9fa2744da314a54275c7f69d02b06780990f59fe0497261d2c501830c1a815ef"
+    },
+    {
+      "source": "report/phone-verification.json",
+      "archive": "evidence/phone-verification.json",
+      "sourceSha256": "d4a1b4fdd08e3d155a61a5d88b0f8bc9ee599684dc15219e48307449e2361e96"
+    }
+  ],
+  "files": [
+    {
+      "path": "data/holdout.json",
+      "bytes": 1198,
+      "sha256": "3e69b806b9d0487402702e5f88b5723aa8d07d1247b79610c59d8fc4f0efdd33"
+    },
+    {
+      "path": "data/manifest.json",
+      "bytes": 12856,
+      "sha256": "cde3821549d874515b52860819ff9299eb0a08f8dddecc9a9f47b401e00cfa4e"
+    },
+    {
+      "path": "data/paired-comparisons.json",
+      "bytes": 2320,
+      "sha256": "03a61cabd9dc42b6484dcb53ac2637dcd67eeccf3053f52496af44b6d2b6e380"
+    },
+    {
+      "path": "data/phone.json",
+      "bytes": 21958,
+      "sha256": "bad0d4ebcaa3fd44837246f94ec9a54f585cc0c073aa44e5234c1a63d15697c7"
+    },
+    {
+      "path": "data/screenshots-plan.json",
+      "bytes": 10186,
+      "sha256": "9fa2744da314a54275c7f69d02b06780990f59fe0497261d2c501830c1a815ef"
+    },
+    {
+      "path": "data/segment-sizes.json",
+      "bytes": 10414,
+      "sha256": "27fa3ffaef6f880eeb3d8f5b966b8606b72607c4ce93a89b315c86c6255fd587"
+    },
+    {
+      "path": "data/summary.json",
+      "bytes": 34882,
+      "sha256": "aae13d5ffa879f5ed3a1e7471afafc04a992767265c55fda965f31b3c01c5273"
+    },
+    {
+      "path": "data/手机相册结果.csv",
+      "bytes": 1111,
+      "sha256": "f083695ebe26e6f7c388fd9bb92d71a4efb67867a43e1ed8edbfdc51cface444"
+    },
+    {
+      "path": "data/正式编码结果.csv",
+      "bytes": 12120,
+      "sha256": "5ee8dba35be924ebad8b599797db306fc03d31f7c8fdfaa4e40d690342117e76"
+    },
+    {
+      "path": "evidence/encoding-records.json",
+      "bytes": 128494,
+      "sha256": "2cbf6daf2cdfc648344f8190ab8754650ce63a9e9751fcf9bbf3b88c8c279aea"
+    },
+    {
+      "path": "evidence/frame-metrics.json",
+      "bytes": 2457820,
+      "sha256": "51a480d3e52fa656c3907e7329c7461709de15231d52903b9cb7d8e3d4810b39"
+    },
+    {
+      "path": "evidence/phone-frame-metrics.json",
+      "bytes": 615212,
+      "sha256": "51e607f600431331ef93ce164ccab057023163a62a483ccb340d4b1e47dbca89"
+    },
+    {
+      "path": "evidence/phone-verification.json",
+      "bytes": 686,
+      "sha256": "d4a1b4fdd08e3d155a61a5d88b0f8bc9ee599684dc15219e48307449e2361e96"
+    },
+    {
+      "path": "evidence/quality-checks.json",
+      "bytes": 27737,
+      "sha256": "72176447029044b280fc7e374b929beacd27cc2f000f7c66453ed5fcc34ba34b"
+    },
+    {
+      "path": "evidence/speed-retests.json",
+      "bytes": 11188,
+      "sha256": "7ddfc2d59b4a4f929ca0ce8b44c225a4f9d010b15389ba596965656c08cc4d06"
+    },
+    {
+      "path": "evidence/实验脚本与历史报告.zip",
+      "bytes": 177734,
+      "sha256": "c5923979dac56acb0e964b6fb9b673f3ef3c9146aa7b14c7b5fa4a2faa5b42ca"
+    },
+    {
+      "path": "README.md",
+      "bytes": 9442,
+      "sha256": "e443319ed51163278748aab15a7cd56ac7d2ae4bffd3dac4ff783cc5c707d203"
+    },
+    {
+      "path": "verify-archive.mjs",
+      "bytes": 1319,
+      "sha256": "b8dd29f32744ea7e0fafe2ebba1347ef90417d78291f40219fc233411fa89d13"
+    },
+    {
+      "path": "全部档位对照.md",
+      "bytes": 6776,
+      "sha256": "8dd8896b057eceb1c6f3ebb32527b86f1116e40c05486d9e383c761bdd376ab3"
+    },
+    {
+      "path": "手机相册与色彩口径.md",
+      "bytes": 5851,
+      "sha256": "16ba55ae0614a19d51716679cec2b97ea4c4c76503c26a06b5074ea4ce7d31c6"
+    }
+  ]
+}

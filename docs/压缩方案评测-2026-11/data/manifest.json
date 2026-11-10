@@ -1,0 +1,543 @@
+{
+  "frozenAt": "2026-11-09T10:43:46.975Z",
+  "clips": [
+    {
+      "id": "C1",
+      "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261031_202656.mp4",
+      "srcName": "VID_20261031_202656.mp4",
+      "scene": "夜景步行：单元楼亮窗与树丛细节 → 甩镜运动模糊 → 路面暗部",
+      "tags": [
+        "暗部",
+        "噪点",
+        "建筑/树叶细节",
+        "甩镜快速运动"
+      ],
+      "size": 228908339,
+      "width": 3840,
+      "height": 2160,
+      "codedRotation": 90,
+      "displayWidth": 2160,
+      "displayHeight": 3840,
+      "pixFmt": "yuv420p",
+      "codec": "hevc",
+      "is10bit": false,
+      "isHDR": false,
+      "prim": "bt709",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "avgFps": 30.04,
+      "containerDuration": 36.28,
+      "vBitrate": 50021,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:10:31 20:27:34+08:00",
+      "keysDate": "",
+      "qtDate": "2026:10:31 20:27:34+08:00",
+      "rotation": 90,
+      "timeline": {
+        "count": 1090,
+        "timescale": 90000,
+        "span": 36.248344,
+        "uniqueDeltas": 14,
+        "topDeltas": [
+          {
+            "delta": 0.033289,
+            "n": 845
+          },
+          {
+            "delta": 0.033278,
+            "n": 156
+          },
+          {
+            "delta": 0.033189,
+            "n": 46
+          },
+          {
+            "delta": 0.033389,
+            "n": 32
+          },
+          {
+            "delta": 0.043211,
+            "n": 1
+          },
+          {
+            "delta": 0.023333,
+            "n": 1
+          },
+          {
+            "delta": 0.043267,
+            "n": 1
+          },
+          {
+            "delta": 0.023256,
+            "n": 1
+          }
+        ],
+        "vfr": true
+      },
+      "segment": {
+        "startIdx": 150,
+        "startPts": 5.0029111111111115,
+        "frames": 301,
+        "endPts": 14.988655555555555,
+        "duration": 9.985744444,
+        "avgFps": 30.142970480368923,
+        "requestedStart": 5,
+        "requestedDur": 10,
+        "keyint": 30,
+        "minKeyint": 15
+      }
+    },
+    {
+      "id": "C2",
+      "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261108_204248.mp4",
+      "srcName": "VID_20261108_204248.mp4",
+      "scene": "室内漫展人群：密集人物、衣物花纹与彩色装饰，镜头缓慢横移",
+      "tags": [
+        "人物",
+        "衣物/花纹细节",
+        "彩色高饱和",
+        "持续运动"
+      ],
+      "size": 252502597,
+      "width": 3840,
+      "height": 2160,
+      "codedRotation": 0,
+      "displayWidth": 3840,
+      "displayHeight": 2160,
+      "pixFmt": "yuv420p",
+      "codec": "hevc",
+      "is10bit": false,
+      "isHDR": false,
+      "prim": "bt709",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "avgFps": 59.85,
+      "containerDuration": 39.63,
+      "vBitrate": 50237,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:08 20:43:28+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:08 20:43:28+08:00",
+      "rotation": 0,
+      "timeline": {
+        "count": 2372,
+        "timescale": 90000,
+        "span": 39.615522,
+        "uniqueDeltas": 13,
+        "topDeltas": [
+          {
+            "delta": 0.016644,
+            "n": 2317
+          },
+          {
+            "delta": 0.016756,
+            "n": 12
+          },
+          {
+            "delta": 0.016656,
+            "n": 10
+          },
+          {
+            "delta": 0.016556,
+            "n": 8
+          },
+          {
+            "delta": 0.016733,
+            "n": 8
+          },
+          {
+            "delta": 0.016567,
+            "n": 4
+          },
+          {
+            "delta": 0.033322,
+            "n": 3
+          },
+          {
+            "delta": 0.033356,
+            "n": 2
+          }
+        ],
+        "vfr": true
+      },
+      "segment": {
+        "startIdx": 597,
+        "startPts": 10.0037,
+        "frames": 600,
+        "endPts": 19.99087777777778,
+        "duration": 9.987177778,
+        "avgFps": 60.07703210427422,
+        "requestedStart": 10,
+        "requestedDur": 10,
+        "keyint": 60,
+        "minKeyint": 30
+      }
+    },
+    {
+      "id": "C3",
+      "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261108_211624.mp4",
+      "srcName": "VID_20261108_211624.mp4",
+      "scene": "舞台演出：固定机位，招牌文字、亮片服装，前景观众头部为暗部",
+      "tags": [
+        "文字",
+        "舞台灯光",
+        "暗部前景",
+        "中等运动"
+      ],
+      "size": 146438651,
+      "width": 3840,
+      "height": 2160,
+      "codedRotation": 90,
+      "displayWidth": 2160,
+      "displayHeight": 3840,
+      "pixFmt": "yuv420p",
+      "codec": "hevc",
+      "is10bit": false,
+      "isHDR": false,
+      "prim": "bt709",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "avgFps": 59.92,
+      "containerDuration": 18.76,
+      "vBitrate": 61487,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:11:08 21:16:43+08:00",
+      "keysDate": "",
+      "qtDate": "2026:11:08 21:16:43+08:00",
+      "rotation": 90,
+      "timeline": {
+        "count": 1124,
+        "timescale": 90000,
+        "span": 18.740822,
+        "uniqueDeltas": 7,
+        "topDeltas": [
+          {
+            "delta": 0.016622,
+            "n": 946
+          },
+          {
+            "delta": 0.016633,
+            "n": 103
+          },
+          {
+            "delta": 0.016733,
+            "n": 62
+          },
+          {
+            "delta": 0.016533,
+            "n": 8
+          },
+          {
+            "delta": 0.033278,
+            "n": 2
+          },
+          {
+            "delta": 0.033356,
+            "n": 1
+          },
+          {
+            "delta": 0.033322,
+            "n": 1
+          }
+        ],
+        "vfr": true
+      },
+      "segment": {
+        "startIdx": 241,
+        "startPts": 4.0075,
+        "frames": 601,
+        "endPts": 14.001455555555555,
+        "duration": 9.993955556,
+        "avgFps": 60.136349079437515,
+        "requestedStart": 4,
+        "requestedDur": 10,
+        "keyint": 60,
+        "minKeyint": 30
+      }
+    },
+    {
+      "id": "C4",
+      "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261031_204355.mp4",
+      "srcName": "VID_20261031_204355.mp4",
+      "scene": "红光照明的暗场景，快速手持运动；可变帧率（60/30fps 混合）",
+      "tags": [
+        "可变帧率",
+        "暗部",
+        "快速运动",
+        "高饱和红"
+      ],
+      "size": 52936635,
+      "width": 3840,
+      "height": 2160,
+      "codedRotation": 90,
+      "displayWidth": 2160,
+      "displayHeight": 3840,
+      "pixFmt": "yuv420p",
+      "codec": "hevc",
+      "is10bit": false,
+      "isHDR": false,
+      "prim": "bt709",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "avgFps": 46.29,
+      "containerDuration": 7.83,
+      "vBitrate": 53230,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:10:31 20:44:04+08:00",
+      "keysDate": "",
+      "qtDate": "2026:10:31 20:44:04+08:00",
+      "rotation": 90,
+      "timeline": {
+        "count": 362,
+        "timescale": 90000,
+        "span": 7.802778,
+        "uniqueDeltas": 7,
+        "topDeltas": [
+          {
+            "delta": 0.016644,
+            "n": 252
+          },
+          {
+            "delta": 0.033289,
+            "n": 99
+          },
+          {
+            "delta": 0.033189,
+            "n": 5
+          },
+          {
+            "delta": 0.033389,
+            "n": 2
+          },
+          {
+            "delta": 0.026644,
+            "n": 1
+          },
+          {
+            "delta": 0.033267,
+            "n": 1
+          },
+          {
+            "delta": 0.020144,
+            "n": 1
+          }
+        ],
+        "vfr": true
+      },
+      "segment": {
+        "startIdx": 0,
+        "startPts": 0,
+        "frames": 362,
+        "endPts": 7.802777777777778,
+        "duration": 7.802777778,
+        "avgFps": 46.39373442374101,
+        "requestedStart": 0,
+        "requestedDur": null,
+        "keyint": 46,
+        "minKeyint": 23
+      }
+    },
+    {
+      "id": "C5",
+      "src": "E:\\VideoEdit\\每天拍几秒企划\\9.35-10.24\\VID_20261003_111508.mp4",
+      "srcName": "VID_20261003_111508.mp4",
+      "scene": "餐桌特写（细密纹理与包装文字）→ 甩镜 → 厨房人物与橱柜标签",
+      "tags": [
+        "细密纹理",
+        "文字",
+        "甩镜运动",
+        "室内混合光"
+      ],
+      "size": 126474834,
+      "width": 3840,
+      "height": 2160,
+      "codedRotation": 90,
+      "displayWidth": 2160,
+      "displayHeight": 3840,
+      "pixFmt": "yuv420p",
+      "codec": "hevc",
+      "is10bit": false,
+      "isHDR": false,
+      "prim": "bt709",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "avgFps": 59.92,
+      "containerDuration": 16.21,
+      "vBitrate": 61444,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:10:03 11:15:25+08:00",
+      "keysDate": "",
+      "qtDate": "2026:10:03 11:15:25+08:00",
+      "rotation": 90,
+      "timeline": {
+        "count": 971,
+        "timescale": 90000,
+        "span": 16.188778,
+        "uniqueDeltas": 30,
+        "topDeltas": [
+          {
+            "delta": 0.016644,
+            "n": 865
+          },
+          {
+            "delta": 0.016622,
+            "n": 41
+          },
+          {
+            "delta": 0.016611,
+            "n": 22
+          },
+          {
+            "delta": 0.016544,
+            "n": 8
+          },
+          {
+            "delta": 0.016744,
+            "n": 4
+          },
+          {
+            "delta": 0.016489,
+            "n": 2
+          },
+          {
+            "delta": 0.0165,
+            "n": 2
+          },
+          {
+            "delta": 0.016411,
+            "n": 2
+          }
+        ],
+        "vfr": true
+      },
+      "segment": {
+        "startIdx": 240,
+        "startPts": 4.015088888888889,
+        "frames": 600,
+        "endPts": 14.001611111111112,
+        "duration": 9.986522222,
+        "avgFps": 60.080975805392846,
+        "requestedStart": 4,
+        "requestedDur": 10,
+        "keyint": 60,
+        "minKeyint": 30
+      }
+    },
+    {
+      "id": "C6",
+      "src": "E:\\VideoEdit\\每天拍几秒企划\\10.25-\\VID_20261031_205503.mp4",
+      "srcName": "VID_20261031_205503.mp4",
+      "scene": "演出现场人群：LED 屏文字、密集人头与手臂，镜头持续移动",
+      "tags": [
+        "LED 文字",
+        "高密度细节",
+        "剧烈运动",
+        "高饱和"
+      ],
+      "size": 136269240,
+      "width": 3840,
+      "height": 2160,
+      "codedRotation": 0,
+      "displayWidth": 3840,
+      "displayHeight": 2160,
+      "pixFmt": "yuv420p",
+      "codec": "hevc",
+      "is10bit": false,
+      "isHDR": false,
+      "prim": "bt709",
+      "trc": "bt709",
+      "matrix": "bt709",
+      "avgFps": 60.06,
+      "containerDuration": 19.94,
+      "vBitrate": 53557,
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "bitrate": 319,
+        "channels": "stereo"
+      },
+      "dateRaw": "2026:10:31 20:55:23+08:00",
+      "keysDate": "",
+      "qtDate": "2026:10:31 20:55:23+08:00",
+      "rotation": 0,
+      "timeline": {
+        "count": 1197,
+        "timescale": 90000,
+        "span": 19.912278,
+        "uniqueDeltas": 13,
+        "topDeltas": [
+          {
+            "delta": 0.016622,
+            "n": 869
+          },
+          {
+            "delta": 0.0167,
+            "n": 48
+          },
+          {
+            "delta": 0.016544,
+            "n": 48
+          },
+          {
+            "delta": 0.016689,
+            "n": 48
+          },
+          {
+            "delta": 0.016556,
+            "n": 48
+          },
+          {
+            "delta": 0.016678,
+            "n": 32
+          },
+          {
+            "delta": 0.016711,
+            "n": 24
+          },
+          {
+            "delta": 0.016533,
+            "n": 24
+          }
+        ],
+        "vfr": true
+      },
+      "segment": {
+        "startIdx": 301,
+        "startPts": 5.003,
+        "frames": 600,
+        "endPts": 14.99238888888889,
+        "duration": 9.989388889,
+        "avgFps": 60.06373429516805,
+        "requestedStart": 5,
+        "requestedDur": 10,
+        "keyint": 60,
+        "minKeyint": 30
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "pictures": 86,
+  "checks": [
+    {
+      "clip": "C1",
+      "frames": 301,
+      "vmafFrames": 301,
+      "screenshotMoments": 5
+    },
+    {
+      "clip": "C2",
+      "frames": 600,
+      "vmafFrames": 600,
+      "screenshotMoments": 5
+    },
+    {
+      "clip": "C3",
+      "frames": 601,
+      "vmafFrames": 601,
+      "screenshotMoments": 5
+    },
+    {
+      "clip": "C4",
+      "frames": 362,
+      "vmafFrames": 362,
+      "screenshotMoments": 5
+    },
+    {
+      "clip": "C5",
+      "frames": 600,
+      "vmafFrames": 600,
+      "screenshotMoments": 5
+    },
+    {
+      "clip": "C6",
+      "frames": 600,
+      "vmafFrames": 600,
+      "screenshotMoments": 5
+    }
+  ]
+}
