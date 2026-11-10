@@ -4,8 +4,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { readVideoTimeline } from './video-timeline.mjs';
+import { normalizePreset } from './encoding-settings.mjs';
 
-const VERSION = 'full-frame-crf24-v3';
+const VERSION = 'full-frame-crf24-preset-v4';
 const ANCHOR_CRF = 24;
 const SLOPE = 0.13;
 const FRAME_COUNT = 32;
@@ -90,7 +91,7 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
   /** 文件有改动就重新估算；改 CRF、重新导入或重启服务均可复用未变的样本。 */
   async function cacheKey(info) {
     const st = await fs.stat(info.path);
-    return `${VERSION}|${info.path}|${st.size}|${st.mtimeMs}`;
+    return `${VERSION}|${normalizePreset(info.preset)}|${info.path}|${st.size}|${st.mtimeMs}`;
   }
 
   /** 串行写缓存，避免同时导入文件时相互覆盖。 */
@@ -117,7 +118,7 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
       Math.max(0, (info.duration || 0) - (frameCount + 1) / (info.fps || 30)));
     const args = ['-hide_banner', '-loglevel', 'error', '-threads', '2', '-ss', time.toFixed(3),
       '-i', info.path, '-filter_threads', '1', '-map', '0:v:0',
-      '-an', '-sn', '-dn', '-c:v', 'libx265', '-preset', 'medium', '-crf', String(ANCHOR_CRF),
+      '-an', '-sn', '-dn', '-c:v', 'libx265', '-preset', normalizePreset(info.preset), '-crf', String(ANCHOR_CRF),
       '-pix_fmt', info.is10bit || info.isHDR ? 'yuv420p10le' : 'yuv420p',
       '-x265-params', [`keyint=${keyint}`, `min-keyint=${Math.max(12, Math.round((info.fps || 30) / 2))}`,
         'log-level=error', 'info=0', info.prim && `colorprim=${info.prim}`,
@@ -147,7 +148,7 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
     if (isCompressing()) return fallbackModel('压缩时暂用参数粗估');
     try {
       const result = await sample(info, totalFrames);
-      return { kind: 'sample', points: [{ crf: ANCHOR_CRF, bpp: result.bpp }], slope: SLOPE,
+      return { kind: 'sample', preset: normalizePreset(info.preset), points: [{ crf: ANCHOR_CRF, bpp: result.bpp }], slope: SLOPE,
         totalFrames, fullFrame: true, uncertainty: info.isHDR || info.is10bit ? 0.65 : 0.5,
         upperUncertainty: info.isHDR || info.is10bit ? 1.15 : 1,
         elapsedMs: Math.round(performance.now() - started), sampleWindows: 1,
@@ -162,6 +163,7 @@ export function createQuickEstimator({ getFfmpeg, cacheDir, isCompressing = () =
     /** 合并重复请求，每个文件只分析一次；列表逐个更新，首个结果无需等待整批。 */
     async get(info) {
       await ready;
+      info = { ...info, preset: normalizePreset(info.preset) };
       const key = await cacheKey(info);
       if (cache.has(key)) return { ...cache.get(key), cached: true };
       if (pending.has(key)) return pending.get(key);

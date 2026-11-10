@@ -59,6 +59,11 @@
       <p id="selectedFileMeta">点击左侧文件，即可查看对应预估。</p>
     </div>
 
+    <div class="encoding-option">
+      <label for="encodingPreset">x265 预设 <span class="scope-label">仅当前视频</span></label>
+      <select id="encodingPreset"><option value="fast">fast · 默认，更快</option><option value="medium">medium · 细节优先</option></select>
+      <button type="button" class="apply-all" id="applyPresetAll">应用到全部</button>
+    </div>
     <div class="crf-block">
       <div class="crf-title">
         <span>CRF 画质档位 <span class="scope-label">仅当前视频</span></span>
@@ -76,7 +81,7 @@
       <details class="crf-guide" id="crfGuide">
         <summary><span id="crfGuideLabel">画质参考：画质与体积平衡（24–26）</span><span class="guide-toggle">档位说明</span></summary>
         <div class="crf-guide-content">
-          <p>CRF 越低通常保留越多细节，体积也越大。以下是 <strong>x265 medium 的经验选档参考</strong>，并非当前视频的实测画质。</p>
+          <p>CRF 越低通常保留越多细节，体积也越大。以下是 <strong>x265 的经验选档参考</strong>，并非当前视频的实测画质。</p>
           <table class="guide-table" aria-label="CRF 经验档位说明">
             <thead><tr><th>CRF</th><th>画质取向</th><th>适用与取舍</th></tr></thead>
             <tbody id="crfGuideBody"></tbody>

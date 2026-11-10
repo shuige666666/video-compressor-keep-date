@@ -13,6 +13,7 @@ import { execFile, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { buildTable, createQuickEstimator } from './quick-estimate.mjs';
 import { verifyVideoTimeline } from './video-timeline.mjs';
+import { DEFAULT_PRESET, normalizePreset } from './encoding-settings.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -330,7 +331,7 @@ function outputPathFor(src, suffix) {
   return out;
 }
 
-function buildFfmpegArgs(info, src, dst, crf, faststart) {
+function buildFfmpegArgs(info, src, dst, crf, faststart, preset = DEFAULT_PRESET) {
   const args = ['-y', '-hide_banner', '-loglevel', 'error', '-progress', 'pipe:1', '-nostats'];
   args.push('-i', src);
   args.push('-map', '0:v:0');
@@ -339,7 +340,7 @@ function buildFfmpegArgs(info, src, dst, crf, faststart) {
   // 手机视频可能是可变帧率；逐帧沿用时间戳及输入时间基，避免自动同步丢帧或补帧。
   args.push('-fps_mode:v:0', 'passthrough', '-enc_time_base:v:0', '-1');
 
-  args.push('-c:v', 'libx265', '-preset', 'medium', '-crf', String(crf));
+  args.push('-c:v', 'libx265', '-preset', normalizePreset(preset), '-crf', String(crf));
 
   if (info.is10bit || info.isHDR) {
     args.push('-pix_fmt', 'yuv420p10le', '-profile:v', 'main10');
@@ -427,7 +428,7 @@ function runCompress(jobId) {
     item.startedAt = Date.now();
 
     const dst = item.outPath;
-    const args = buildFfmpegArgs(item.info, item.path, dst, item.crf, item.faststart);
+    const args = buildFfmpegArgs(item.info, item.path, dst, item.crf, item.faststart, item.preset);
 
     const cp = spawn(FF, args, { windowsHide: true });
     job.proc = cp;
@@ -642,6 +643,7 @@ function publicJob(job) {
       path: it.path,
       crf: it.crf,
       faststart: it.faststart,
+      preset: it.preset,
       outPath: it.outPath,
       size: it.size,
       outBytes: it.outBytes || 0,
@@ -668,7 +670,7 @@ const server = http.createServer(async (req, res) => {
         ok: true, port: PORT,
         ffmpeg: FF, ffmpegVersion: FF_VER,
         exiftool: ET, exiftoolVersion: ET_VER,
-        perFileSettings: true,
+        perFileSettings: true, perFilePresets: true, defaultPreset: DEFAULT_PRESET,
         toolError: (!FF && toolErrors.ffmpeg) || (!ET && toolErrors.exiftool) || '',
         runningJobs: [...jobs.values()].filter((job) => job.status === 'running').length,
       });
@@ -708,7 +710,10 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/estimate' && req.method === 'POST') {
       const body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
       if (typeof body.path !== 'string' || !isVideo(body.path)) return json(res, 400, { ok: false, error: '请选择视频文件' });
-      const info = await inspect(body.path);
+      let preset;
+      try { preset = normalizePreset(body.preset); } catch (e) { return json(res, 400, { ok: false, error: e.message }); }
+      // 预设属于本次请求，不能污染共享的原片探测缓存。
+      const info = { ...await inspect(body.path), preset };
       info.sizeModel = await quickEstimator.get(info);
       info.table = buildTable(info);
       return json(res, 200, { ok: true, item: info });
@@ -719,25 +724,28 @@ const server = http.createServer(async (req, res) => {
       const body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
       // 新界面逐文件提交，旧界面仍可用 paths 与统一参数发起任务。
       const entries = Array.isArray(body.items) ? body.items
-        : (Array.isArray(body.paths) ? body.paths : []).map((p) => ({ path: p, crf: body.crf, faststart: body.faststart }));
+        : (Array.isArray(body.paths) ? body.paths : []).map((p) => ({ path: p, crf: body.crf, faststart: body.faststart, preset: body.preset }));
       const suffix = String(body.suffix || '_compressed').replace(/[\\/:*?"<>|]/g, '_') || '_compressed';
       if (!entries.length) return json(res, 400, { ok: false, error: '没有选中文件' });
       if (entries.some((entry) => !entry || typeof entry.path !== 'string' || !entry.path.trim())) {
         return json(res, 400, { ok: false, error: '视频路径不能为空' });
       }
 
+      try { entries.forEach((entry) => normalizePreset(entry.preset)); }
+      catch (e) { return json(res, 400, { ok: false, error: e.message }); }
       const items = [];
       for (const entry of entries) {
         const p = path.resolve(entry.path);
         const crf = clamp(Number(entry.crf) || 25, 16, 30);
         // 仅显式开启时启用 faststart；未指定的每个视频默认关闭。
         const faststart = entry.faststart === true;
+        const preset = normalizePreset(entry.preset);
         try {
           const info = await inspect(p);
-          items.push({ path: p, crf, faststart, name: info.name, size: info.size, info, outPath: outputPathFor(p, suffix), status: 'pending', outBytes: 0, percent: 0 });
+          items.push({ path: p, crf, faststart, preset, name: info.name, size: info.size, info, outPath: outputPathFor(p, suffix), status: 'pending', outBytes: 0, percent: 0 });
         } catch (e) {
           // 单个原片被移动或删除时跳过该项，让同批其他视频继续处理。
-          items.push({ path: p, crf, faststart, skip: true, name: path.basename(p), size: 0, info: null, outPath: '', status: 'error', error: '读取失败：' + e.message, outBytes: 0, percent: 0 });
+          items.push({ path: p, crf, faststart, preset, skip: true, name: path.basename(p), size: 0, info: null, outPath: '', status: 'error', error: '读取失败：' + e.message, outBytes: 0, percent: 0 });
         }
       }
 

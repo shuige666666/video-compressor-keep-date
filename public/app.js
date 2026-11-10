@@ -1,6 +1,7 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const DEFAULT_CRF = 25;
+const DEFAULT_PRESET = 'fast';
 
 // 只提供选档方向，不把经验范围当成当前视频的实测画质。
 const CRF_GUIDE = [
@@ -171,7 +172,7 @@ function updateEstimateLines() {
     const line = document.querySelector(`[data-estimate="${i}"]`);
     const row = estimate(it, it.crf);
     if (line) line.textContent = row
-      ? `CRF ${it.crf} · faststart ${it.faststart ? '开' : '关'} · 约 ${fmtBytes(row.bytes)}（原片 ${(row.ratio * 100).toFixed(0)}%） · ${estimateStatus(it)}`
+      ? `${it.preset} · CRF ${it.crf} · faststart ${it.faststart ? '开' : '关'} · 约 ${fmtBytes(row.bytes)}（原片 ${(row.ratio * 100).toFixed(0)}%） · ${estimateStatus(it)}`
       : '无法读取视频参数';
   });
 }
@@ -184,7 +185,9 @@ function batchSettingsSummary() {
   const crf = crfs.size === 1 ? `CRF ${state.items[0].crf}` : 'CRF 分别设置';
   const faststart = enabled === 0 ? 'faststart 全关' : enabled === state.items.length
     ? 'faststart 全开' : `faststart ${enabled} 开 / ${state.items.length - enabled} 关`;
-  return `${state.items.length} 个文件 · ${crf} · ${faststart}`;
+  const presets = new Set(state.items.map((item) => item.preset));
+  const preset = presets.size === 1 ? state.items[0].preset : '预设分别设置';
+  return `${state.items.length} 个文件 · ${preset} · ${crf} · ${faststart}`;
 }
 
 /** 滑块、预设和档位表都只修改当前文件。 */
@@ -199,7 +202,12 @@ function setCurrentCrf(value) {
 function applyCurrentToAll(setting) {
   const current = selectedInfo();
   if (!current || state.busy) return;
-  for (const item of state.items) item[setting] = current[setting];
+  for (const item of state.items) {
+    if (item[setting] === current[setting]) continue;
+    item[setting] = current[setting];
+    if (setting === 'preset') resetPresetEstimate(item);
+  }
+  if (setting === 'preset') renderTable();
   updateMetrics();
 }
 
@@ -224,12 +232,13 @@ function updateMetrics() {
   $('#crfGuideLabel').textContent = `画质参考：${band.label}（${band.min}–${band.max}）`;
   $('#crf').value = crf;
   $('#faststart').checked = !!info && info.faststart;
-  $$('#crf, #faststart, .chip').forEach((control) => { control.disabled = state.busy || !info; });
-  $$('#applyCrfAll, #applyFaststartAll').forEach((control) => { control.disabled = state.busy || state.items.length < 2; });
+  $('#encodingPreset').value = info?.preset || DEFAULT_PRESET;
+  $$('#crf, #faststart, #encodingPreset, .chip').forEach((control) => { control.disabled = state.busy || !info; });
+  $$('#applyCrfAll, #applyFaststartAll, #applyPresetAll').forEach((control) => { control.disabled = state.busy || state.items.length < 2; });
   $('#mSize').textContent = e ? '约 ' + fmtBytes(e.bytes) : '—';
   $('#mRange').textContent = e ? `${fmtBytes(e.lowBytes)}–${fmtBytes(e.highBytes)}` : '';
   $('#mRatio').textContent = e ? (e.ratio * 100).toFixed(0) + '%' : '—';
-  const recommended = info && info.table ? info.table.reduce((best, row) =>
+  const recommended = info?.table?.length ? info.table.reduce((best, row) =>
     Math.abs(row.ratio - 0.55) < Math.abs(best.ratio - 0.55) ? row : best) : null;
   $('#mRecommended').textContent = recommended ? 'CRF ' + recommended.crf : '—';
   $('#mSize').classList.toggle('over', !!e && e.bigger);
@@ -308,6 +317,7 @@ async function scanPaths(paths) {
       if (state.items.some((x) => x.path === it.path)) continue;
       // 新添加的视频独立使用默认值，批量应用仅作用于操作时已有的文件。
       it.crf = DEFAULT_CRF;
+      it.preset = DEFAULT_PRESET;
       it.faststart = false;
       it.estimateState = 'pending';
       state.items.push(it);
@@ -324,6 +334,12 @@ async function scanPaths(paths) {
   scheduleEstimates(added);
 }
 
+/** 切换编码预设后清除旧模型，过期响应不能覆盖新预设的预估。 */
+function resetPresetEstimate(item) {
+  delete item.sizeModel; item.table = []; item.estimateState = 'pending';
+  scheduleEstimates([item]);
+}
+
 let estimateQueue = Promise.resolve();
 
 /** 导入后自动更新每个文件；滑块和表格直接复用结果，不发起重复试算。 */
@@ -331,23 +347,24 @@ function scheduleEstimates(items) {
   for (const item of items) {
     estimateQueue = estimateQueue.then(async () => {
       if (!state.items.includes(item) || state.busy) return;
+      const preset = item.preset;
       item.estimateState = 'loading';
       if (selectedInfo() === item) { renderTable(); updateMetrics(); }
       else updateEstimateLines();
       try {
         const result = await api('/api/estimate', { method: 'POST',
-          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: item.path }) });
-        if (state.items.includes(item)) {
-          // 后台分析期间用户可能已调整参数，返回元数据不能覆盖本地设置。
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: item.path, preset }) });
+        if (state.items.includes(item) && item.preset === preset) {
+          // 后台分析期间用户可能已调整参数，过期预设结果不能覆盖当前设置。
           if (result.ok) {
-            const { crf, faststart } = item;
-            Object.assign(item, result.item, { crf, faststart });
+            const { crf, faststart, preset } = item;
+            Object.assign(item, result.item, { crf, faststart, preset });
           }
           item.estimateState = result.ok ? 'done' : 'fallback';
         }
       } catch {
         // 请求失败时已有参考值仍然可用，不阻塞选档和压缩。
-        item.estimateState = 'fallback';
+        if (item.preset === preset) item.estimateState = 'fallback';
       }
       // 其他文件的分析结果不应打断当前查看，也不应重置列表或表格滚动。
       if (selectedInfo() === item) { renderTable(); updateMetrics(); }
@@ -391,7 +408,7 @@ function setBusy(b) {
   $('#cancel').hidden = !b;
   $('#progressArea').hidden = !b;
   $$('.f-remove').forEach((el) => { el.disabled = b; });
-  $$('#crf, #suffix, #faststart, #pathInput, #workdir, #pickFiles, #pickDir, #clearAll, .chip').forEach((el) => { el.disabled = b; });
+  $$('#crf, #suffix, #faststart, #encodingPreset, #pathInput, #workdir, #pickFiles, #pickDir, #clearAll, .chip').forEach((el) => { el.disabled = b; });
   updateMetrics();
 }
 
@@ -400,7 +417,7 @@ async function startCompress() {
   if (!state.items.length || state.busy) return;
 
   const items = state.items.filter((item) => item && item.path)
-    .map((item) => ({ path: item.path, crf: item.crf, faststart: item.faststart }));
+    .map((item) => ({ path: item.path, crf: item.crf, faststart: item.faststart, preset: item.preset }));
   const body = { items, suffix: $('#suffix').value.trim() || '_compressed' };
   // 提交前锁定本批参数，避免等待服务读取文件时又被修改。
   setBusy(true);
@@ -617,6 +634,14 @@ async function init() {
     current.faststart = e.target.checked;
     updateMetrics();
   });
+  $('#encodingPreset').addEventListener('change', (event) => {
+    const item = selectedInfo();
+    if (!item || state.busy) return;
+    item.preset = event.target.value;
+    resetPresetEstimate(item);
+    renderTable(); updateMetrics();
+  });
+  $('#applyPresetAll').addEventListener('click', () => applyCurrentToAll('preset'));
   $('#applyCrfAll').addEventListener('click', () => applyCurrentToAll('crf'));
   $('#applyFaststartAll').addEventListener('click', () => applyCurrentToAll('faststart'));
 

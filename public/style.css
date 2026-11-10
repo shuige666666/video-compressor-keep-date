@@ -700,3 +700,7 @@ footer {
   .estimate-line { font-size: 10.5px; }
   .output-settings summary span { display: block; margin-left: 12px; }
 }
+
+/* 预设与 CRF 独立设置，窄窗口允许换行。 */
+.encoding-option { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.encoding-option select { min-width:0; flex:1; padding:6px 8px; color:var(--text); background:var(--panel); border:1px solid var(--border-strong); border-radius:8px; }
